@@ -4,27 +4,27 @@
 #include <vector>
 #include "ThreadPool.h"
 
-EventLoop::EventLoop() : ep(nullptr), quit(false)
+EventLoop::EventLoop() : ep_(nullptr), quit(false)
 {
-    ep = new Epoll();
+    ep_ = new Epoll();
 }
 EventLoop::~EventLoop()
 {
-    delete ep;
+    delete ep_;
 }
-void EventLoop::loop()
+void EventLoop::loop() const
 {
     while(!quit)
     {
         std::vector<Channel*> chs;
-        chs = ep->poll();
+        chs = ep_->poll();
         for(auto it = chs.begin(); it!=chs.end();++it)
         {
             (*it)->handleEvent();
         }
     }
 }
-void EventLoop::updateChannel(Channel* ch)
+void EventLoop::updateChannel(Channel* ch) const
 {
-    ep->updateChannel(ch);
+    ep_->updateChannel(ch);
 }

@@ -1,38 +1,56 @@
+/**
+ * @file Socket.h
+ * @author 冯岳松 (yuesong-feng@foxmail.com)
+ * @brief
+ * @version 0.1
+ * @date 2022-01-04
+ *
+ * @copyright Copyright (冯岳松) 2022
+ *
+ */
+
 #pragma once
 #include <arpa/inet.h>
 #include "common.h"
 
 class InetAddress
 {
-private:
-    sockaddr_in addr;
-    socklen_t addr_len;
 public:
-    DISALLOW_COPY_AND_MOVE(InetAddress);
     InetAddress();
-    InetAddress(const char* ip, uint16_t port);
-    ~InetAddress();
+    InetAddress(const char *ip, uint16_t port);
+    ~InetAddress() = default;
 
-    void setInetAddr(sockaddr_in _addr, socklen_t _addr_len);
+    DISALLOW_COPY_AND_MOVE(InetAddress);
+
+    void setAddr(sockaddr_in addr);
     sockaddr_in getAddr();
-    socklen_t getAddr_len();
+    const char *getIp();
+    uint16_t getPort();
+
+private:
+    sockaddr_in addr_{};
 };
+
 class Socket
 {
 private:
-    int fd;
+    int fd_{-1};
+
 public:
-    DISALLOW_COPY_AND_MOVE(Socket);
     Socket();
-    Socket(int _fd);
+    explicit Socket(int fd);
     ~Socket();
 
-    void bind(InetAddress*);
+    DISALLOW_COPY_AND_MOVE(Socket);
+
+    void bind(InetAddress *addr);
     void listen();
-    int accept(InetAddress*);
-    void connect(InetAddress*);
+    int accept(InetAddress *addr);
+
+    void connect(InetAddress *addr);
     void connect(const char *ip, uint16_t port);
-    void setnonblocking();
-    int getFd();
+
+    void setNonBlocking();
     bool isNonBlocking();
+    int getFd();
 };

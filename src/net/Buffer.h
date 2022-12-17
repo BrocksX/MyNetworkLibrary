@@ -5,16 +5,17 @@
 class Buffer
 {
 private:
-    std::string buf;
+    std::string buf_;
 public:
     DISALLOW_COPY_AND_MOVE(Buffer);
-    Buffer();
-    ~Buffer();
+    Buffer() = default;
+    ~Buffer() = default;
 
     void append(const char* _str, int _size);
-    ssize_t size();
-    const char* c_str();
+    ssize_t size() const;
+    const char* c_str() const;
     void clear();
     void getline();
     void setBuf(const char*);
+    const std::string &buf() const;
 };

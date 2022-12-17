@@ -1,0 +1,72 @@
+[
+{
+  "directory": "/home/net/桌面/server/build",
+  "command": "/usr/bin/g++ -DmyTinyServer_EXPORTS -I/home/net/桌面/server/src/base -I/home/net/桌面/server/src/net -g -fPIC -o CMakeFiles/myTinyServer.dir/src/base/ThreadPool.cpp.o -c /home/net/桌面/server/src/base/ThreadPool.cpp",
+  "file": "/home/net/桌面/server/src/base/ThreadPool.cpp"
+},
+{
+  "directory": "/home/net/桌面/server/build",
+  "command": "/usr/bin/g++ -DmyTinyServer_EXPORTS -I/home/net/桌面/server/src/base -I/home/net/桌面/server/src/net -g -fPIC -o CMakeFiles/myTinyServer.dir/src/base/util.cpp.o -c /home/net/桌面/server/src/base/util.cpp",
+  "file": "/home/net/桌面/server/src/base/util.cpp"
+},
+{
+  "directory": "/home/net/桌面/server/build",
+  "command": "/usr/bin/g++ -DmyTinyServer_EXPORTS -I/home/net/桌面/server/src/base -I/home/net/桌面/server/src/net -g -fPIC -o CMakeFiles/myTinyServer.dir/src/net/Acceptor.cpp.o -c /home/net/桌面/server/src/net/Acceptor.cpp",
+  "file": "/home/net/桌面/server/src/net/Acceptor.cpp"
+},
+{
+  "directory": "/home/net/桌面/server/build",
+  "command": "/usr/bin/g++ -DmyTinyServer_EXPORTS -I/home/net/桌面/server/src/base -I/home/net/桌面/server/src/net -g -fPIC -o CMakeFiles/myTinyServer.dir/src/net/Buffer.cpp.o -c /home/net/桌面/server/src/net/Buffer.cpp",
+  "file": "/home/net/桌面/server/src/net/Buffer.cpp"
+},
+{
+  "directory": "/home/net/桌面/server/build",
+  "command": "/usr/bin/g++ -DmyTinyServer_EXPORTS -I/home/net/桌面/server/src/base -I/home/net/桌面/server/src/net -g -fPIC -o CMakeFiles/myTinyServer.dir/src/net/Channel.cpp.o -c /home/net/桌面/server/src/net/Channel.cpp",
+  "file": "/home/net/桌面/server/src/net/Channel.cpp"
+},
+{
+  "directory": "/home/net/桌面/server/build",
+  "command": "/usr/bin/g++ -DmyTinyServer_EXPORTS -I/home/net/桌面/server/src/base -I/home/net/桌面/server/src/net -g -fPIC -o CMakeFiles/myTinyServer.dir/src/net/Connection.cpp.o -c /home/net/桌面/server/src/net/Connection.cpp",
+  "file": "/home/net/桌面/server/src/net/Connection.cpp"
+},
+{
+  "directory": "/home/net/桌面/server/build",
+  "command": "/usr/bin/g++ -DmyTinyServer_EXPORTS -I/home/net/桌面/server/src/base -I/home/net/桌面/server/src/net -g -fPIC -o CMakeFiles/myTinyServer.dir/src/net/Epoll.cpp.o -c /home/net/桌面/server/src/net/Epoll.cpp",
+  "file": "/home/net/桌面/server/src/net/Epoll.cpp"
+},
+{
+  "directory": "/home/net/桌面/server/build",
+  "command": "/usr/bin/g++ -DmyTinyServer_EXPORTS -I/home/net/桌面/server/src/base -I/home/net/桌面/server/src/net -g -fPIC -o CMakeFiles/myTinyServer.dir/src/net/EventLoop.cpp.o -c /home/net/桌面/server/src/net/EventLoop.cpp",
+  "file": "/home/net/桌面/server/src/net/EventLoop.cpp"
+},
+{
+  "directory": "/home/net/桌面/server/build",
+  "command": "/usr/bin/g++ -DmyTinyServer_EXPORTS -I/home/net/桌面/server/src/base -I/home/net/桌面/server/src/net -g -fPIC -o CMakeFiles/myTinyServer.dir/src/net/Server.cpp.o -c /home/net/桌面/server/src/net/Server.cpp",
+  "file": "/home/net/桌面/server/src/net/Server.cpp"
+},
+{
+  "directory": "/home/net/桌面/server/build",
+  "command": "/usr/bin/g++ -DmyTinyServer_EXPORTS -I/home/net/桌面/server/src/base -I/home/net/桌面/server/src/net -g -fPIC -o CMakeFiles/myTinyServer.dir/src/net/Socket.cpp.o -c /home/net/桌面/server/src/net/Socket.cpp",
+  "file": "/home/net/桌面/server/src/net/Socket.cpp"
+},
+{
+  "directory": "/home/net/桌面/server/build/test",
+  "command": "/usr/bin/g++  -I/home/net/桌面/server/src/base -I/home/net/桌面/server/src/net -g -o CMakeFiles/server.dir/server.cpp.o -c /home/net/桌面/server/test/server.cpp",
+  "file": "/home/net/桌面/server/test/server.cpp"
+},
+{
+  "directory": "/home/net/桌面/server/build/test",
+  "command": "/usr/bin/g++  -I/home/net/桌面/server/src/base -I/home/net/桌面/server/src/net -g -o CMakeFiles/thread.dir/ThreadPoolTest.cpp.o -c /home/net/桌面/server/test/ThreadPoolTest.cpp",
+  "file": "/home/net/桌面/server/test/ThreadPoolTest.cpp"
+},
+{
+  "directory": "/home/net/桌面/server/build/test",
+  "command": "/usr/bin/g++  -I/home/net/桌面/server/src/base -I/home/net/桌面/server/src/net -g -o CMakeFiles/client.dir/client.cpp.o -c /home/net/桌面/server/test/client.cpp",
+  "file": "/home/net/桌面/server/test/client.cpp"
+},
+{
+  "directory": "/home/net/桌面/server/build/test",
+  "command": "/usr/bin/g++  -I/home/net/桌面/server/src/base -I/home/net/桌面/server/src/net -g -o CMakeFiles/test.dir/test.cpp.o -c /home/net/桌面/server/test/test.cpp",
+  "file": "/home/net/桌面/server/test/test.cpp"
+}
+]

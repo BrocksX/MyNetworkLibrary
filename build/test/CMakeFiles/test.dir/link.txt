@@ -1,0 +1,1 @@
+/usr/bin/g++ -g CMakeFiles/test.dir/test.cpp.o -o /home/net/桌面/server/example/test  -Wl,-rpath,/home/net/桌面/server/lib /home/net/桌面/server/lib/libmyTinyServer.so 

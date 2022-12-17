@@ -45,5 +45,7 @@ int main() {
     }
     delete addr;
     delete sock;
+    delete sendBuffer;
+    delete readBuffer;
     return 0;
 }

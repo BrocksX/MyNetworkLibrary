@@ -4,13 +4,13 @@
 class EventLoop
 {
 private:
-    Epoll *ep;
+    Epoll *ep_;
     bool quit;
 public:
     DISALLOW_COPY_AND_MOVE(EventLoop);
     EventLoop();
     ~EventLoop();
 
-    void loop();
-    void updateChannel(Channel *);
+    void loop() const;
+    void updateChannel(Channel *) const;
 };

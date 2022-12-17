@@ -1,36 +1,37 @@
 #include "Buffer.h"
 #include <string.h>
 #include <iostream>
-Buffer::Buffer(){}
-Buffer::~Buffer(){}
+
+const std::string &Buffer::buf() const { return buf_; }
+
 void Buffer::append(const char *_str, int _size)
 {
     for (int i = 0; i < _size; ++i)
     {
         if (_str[i] == '\0')
             break;
-        buf.push_back(_str[i]);
+        buf_.push_back(_str[i]);
     }
 }
-ssize_t Buffer::size()
+ssize_t Buffer::size() const
 {
-    return buf.size();
+    return buf_.size();
 }
-const char *Buffer::c_str()
+const char *Buffer::c_str() const
 {
-    return buf.c_str();
+    return buf_.c_str();
 }
 void Buffer::clear()
 {
-    buf.clear();
+    buf_.clear();
 }
 void Buffer::getline()
 {
-    buf.clear();
-    std::getline(std::cin, buf);
+    buf_.clear();
+    std::getline(std::cin, buf_);
 }
 void Buffer::setBuf(const char* _buf)
 {
-    buf.clear();
-    buf.append(_buf);
+    buf_.clear();
+    buf_.append(_buf);
 }

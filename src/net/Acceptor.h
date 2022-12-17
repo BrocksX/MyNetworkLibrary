@@ -5,15 +5,15 @@
 class Acceptor
 {
 private:
-    EventLoop *loop;
-    Socket *sock;
-    Channel *channel;
-    std::function<void(Socket*)> newConnectionCallback;
+    EventLoop *loop_;
+    Socket *sock_;
+    Channel *channel_;
+    std::function<void(Socket*)> newConnectionCallback_;
 public:
     DISALLOW_COPY_AND_MOVE(Acceptor);
     explicit Acceptor(EventLoop *_loop);
     ~Acceptor();
 
-    void acceptConnection();
-    void setNewConnectionCallback(std::function<void(Socket*)>);
+    void acceptConnection() const;
+    void setNewConnectionCallback(std::function<void(Socket*)> const & _cb);
 };

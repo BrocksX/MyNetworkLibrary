@@ -1,33 +1,34 @@
 #pragma once
+#include "common.h"
 #include <functional>
 #include <cstdint>
-#include "common.h"
-
 class Channel
 {
-private:
-    EventLoop *loop;
-    int fd;
-    uint32_t events;
-    uint32_t ready;
-    bool inEpoll;
-    std::function<void()>readCallback;
-    std::function<void()>writeCallback;
 public:
-    DISALLOW_COPY_AND_MOVE(Channel);
-    Channel(EventLoop *_loop, int _fd);
+    Channel(EventLoop *loop, int fd);
     ~Channel();
 
+    DISALLOW_COPY_AND_MOVE(Channel);
+
     void handleEvent();
-    void enableReading();
+    void enableRead();
 
     int getFd();
-    uint32_t getEvents();
-    uint32_t getReady();
+    uint32_t getListenEvents();
+    uint32_t getReadyEvents();
     bool getInEpoll();
-    void setInEpoll(bool _in = true);
+    void setInEpoll(bool in = true);
     void useET();
 
-    void setReady(uint32_t);
-    void setReadCallback(std::function<void()>);
+    void setReadyEvents(uint32_t ev);
+    void setReadCallback(std::function<void()> const &callback);
+
+private:
+    EventLoop *loop_;
+    int fd_;
+    uint32_t listenEvents_;
+    uint32_t readyEvents_;
+    bool inEpoll_;
+    std::function<void()> readCallback_;
+    std::function<void()> writeCallback_;
 };

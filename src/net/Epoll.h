@@ -5,8 +5,8 @@
 class Epoll
 {
 private:
-    int epfd;
-    epoll_event *events;
+    int epfd_;
+    epoll_event *events_;
 public:
     DISALLOW_COPY_AND_MOVE(Epoll);
     Epoll();
