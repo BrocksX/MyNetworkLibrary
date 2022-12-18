@@ -4,7 +4,7 @@
 class EventLoop
 {
 private:
-    Epoll *ep_;
+    std::unique_ptr<Poller>poller_;
     bool quit;
 public:
     DISALLOW_COPY_AND_MOVE(EventLoop);
@@ -13,4 +13,5 @@ public:
 
     void loop() const;
     void updateChannel(Channel *) const;
+    void deleteChannel(Channel *) const;
 };

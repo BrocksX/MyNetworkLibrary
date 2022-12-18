@@ -2,25 +2,30 @@
 #include "common.h"
 
 #include <functional>
-#include <map>
+#include <unordered_map>
 #include <vector>
-class Server
+class TcpServer
 {
 private:
-    EventLoop *mainReactor_;
-    Acceptor *acceptor_;
-    std::map<int, Connection *> connections_;
-    std::vector<EventLoop *> subReactors_;
-    ThreadPool *thread_pool_;
-    std::function<void(Connection *)> onConnectCallback_;
+    std::unique_ptr<EventLoop> mainReactor_;
+    std::vector<std::unique_ptr<EventLoop>> sub_reactors_;
+
+    std::unique_ptr<Acceptor> acceptor_;
+    std::unordered_map<int, std::unique_ptr<Connection>> connections_;
+
+    std::unique_ptr<ThreadPool>threadPool_;
+
+    std::function<void(Connection *)> on_connect_callback_;
 
 public:
-    explicit Server(EventLoop *loop);
-    ~Server();
+    explicit TcpServer();
+    ~TcpServer();
 
-    DISALLOW_COPY_AND_MOVE(Server);
+    DISALLOW_COPY_AND_MOVE(TcpServer);
 
     void NewConnection(Socket *sock);
     void DeleteConnection(Socket *sock);
     void OnConnect(std::function<void(Connection *)> fn);
+
+    void start();
 };

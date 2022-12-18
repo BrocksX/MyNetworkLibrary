@@ -1,23 +1,21 @@
 #include "EventLoop.h"
-#include "Epoll.h"
+#include "Poller.h"
 #include "Channel.h"
 #include <vector>
 #include "ThreadPool.h"
 
-EventLoop::EventLoop() : ep_(nullptr), quit(false)
+EventLoop::EventLoop() : poller_(nullptr), quit(false)
 {
-    ep_ = new Epoll();
+    poller_ = std::make_unique<Poller>();
 }
-EventLoop::~EventLoop()
-{
-    delete ep_;
-}
+EventLoop::~EventLoop(){}
+
 void EventLoop::loop() const
 {
     while(!quit)
     {
         std::vector<Channel*> chs;
-        chs = ep_->poll();
+        chs = poller_->poll();
         for(auto it = chs.begin(); it!=chs.end();++it)
         {
             (*it)->handleEvent();
@@ -26,5 +24,9 @@ void EventLoop::loop() const
 }
 void EventLoop::updateChannel(Channel* ch) const
 {
-    ep_->updateChannel(ch);
+    poller_->updateChannel(ch);
+}
+void EventLoop::deleteChannel(Channel *ch) const
+{
+    poller_->deleteChannel(ch);
 }

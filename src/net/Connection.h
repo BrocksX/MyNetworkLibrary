@@ -17,7 +17,7 @@ public:
         Closed,
         Failed,
     };
-    Connection(EventLoop *loop, Socket *sock);
+    Connection(EventLoop *loop, Socket *socket);
     ~Connection();
     DISALLOW_COPY_AND_MOVE(Connection);
 
@@ -39,12 +39,11 @@ public:
     void onConnect(std::function<void()> fn);
 
 private:
-    EventLoop *loop_;
-    Socket *sock_;
-    Channel *channel_{nullptr};
-    State state_{State::Invalid};
-    Buffer *readBuffer_{nullptr};
-    Buffer *sendBuffer_{nullptr};
+    std::unique_ptr<Socket> socket_;
+    std::unique_ptr<Channel> channel_;
+    State state_;
+    std::unique_ptr<Buffer> readBuffer_;
+    std::unique_ptr<Buffer> sendBuffer_;
     std::function<void(Socket *)> deleteConnectioinCallback_;
 
     std::function<void(Connection *)> on_connect_callback_;

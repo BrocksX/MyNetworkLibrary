@@ -2,15 +2,15 @@
 #include <sys/epoll.h>
 #include <vector>
 #include "common.h"
-class Epoll
+class Poller
 {
 private:
     int epfd_;
     epoll_event *events_;
 public:
-    DISALLOW_COPY_AND_MOVE(Epoll);
-    Epoll();
-    ~Epoll();
+    DISALLOW_COPY_AND_MOVE(Poller);
+    Poller();
+    ~Poller();
 
     void updateChannel(Channel*);
     void deleteChannel(Channel*);

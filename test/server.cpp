@@ -6,8 +6,7 @@
 #include "Socket.h"
 
 int main() {
-  EventLoop *loop = new EventLoop();
-  Server *server = new Server(loop);
+  TcpServer *server = new TcpServer();
   server->OnConnect([](Connection *conn) {
     conn->read();
     if (conn->getState() == Connection::State::Closed) {
@@ -18,9 +17,8 @@ int main() {
     conn->setSendBuffer(conn->readBuffer());
     conn->write();
   });
-
-  loop->loop();
+  server->start();
+  
   delete server;
-  delete loop;
   return 0;
 }

@@ -12,34 +12,26 @@
 #include "Socket.h"
 #include "util.h"
 
-Connection::Connection(EventLoop *loop, Socket *sock) : loop_(loop), sock_(sock)
+Connection::Connection(EventLoop *loop, Socket *socket) : socket_(socket)
 {
-    if (loop_ != nullptr)
+    if (loop != nullptr)
     {
-        channel_ = new Channel(loop_, sock->getFd());
+        channel_ = std::make_unique<Channel>(loop, socket->getFd());
         channel_->enableRead();
         channel_->useET();
     }
-    readBuffer_ = new Buffer();
-    sendBuffer_ = new Buffer();
+    readBuffer_ = std::make_unique<Buffer>();
+    sendBuffer_ = std::make_unique<Buffer>();
     state_ = State::Connected;
 }
 
-Connection::~Connection()
-{
-    if (loop_ != nullptr)
-    {
-        delete channel_;
-    }
-    delete sock_;
-    delete readBuffer_;
-    delete sendBuffer_;
-}
+Connection::~Connection(){}
+
 void Connection::read()
 {
     assert(state_ == State::Connected);
     readBuffer_->clear();
-    if (sock_->isNonBlocking())
+    if (socket_->isNonBlocking())
     {
         readNonBlocking();
     }
@@ -51,7 +43,7 @@ void Connection::read()
 void Connection::write()
 {
     assert(state_ == State::Connected);
-    if (sock_->isNonBlocking())
+    if (socket_->isNonBlocking())
     {
         writeNonBlocking();
     }
@@ -64,7 +56,7 @@ void Connection::write()
 
 void Connection::readNonBlocking()
 {
-    int sockfd = sock_->getFd();
+    int sockfd = socket_->getFd();
     char buf[1024]; // 这个buf大小无所谓
     while (true)
     { // 使用非阻塞IO，读取客户端buffer，一次读取buf大小数据，直到全部读取完毕
@@ -100,7 +92,7 @@ void Connection::readNonBlocking()
 }
 void Connection::writeNonBlocking()
 {
-    int sockfd = sock_->getFd();
+    int sockfd = socket_->getFd();
     char buf[sendBuffer_->size()];
     memcpy(buf, sendBuffer_->c_str(), sendBuffer_->size());
     int data_size = sendBuffer_->size();
@@ -133,7 +125,7 @@ void Connection::writeNonBlocking()
  */
 void Connection::readBlocking()
 {
-    int sockfd = sock_->getFd();
+    int sockfd = socket_->getFd();
     unsigned int rcv_size = 0;
     socklen_t len = sizeof(rcv_size);
     getsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &rcv_size, &len);
@@ -162,7 +154,7 @@ void Connection::readBlocking()
 void Connection::writeBlocking()
 {
     // 没有处理send_buffer_数据大于TCP写缓冲区，的情况，可能会有bug
-    int sockfd = sock_->getFd();
+    int sockfd = socket_->getFd();
     ssize_t bytes_write = ::write(sockfd, sendBuffer_->c_str(), sendBuffer_->size());
     if (bytes_write == -1)
     {
@@ -171,13 +163,13 @@ void Connection::writeBlocking()
     }
 }
 
-void Connection::close() { deleteConnectioinCallback_(sock_); }
+void Connection::close() { deleteConnectioinCallback_(socket_.get()); }
 
 Connection::State Connection::getState() { return state_; }
 void Connection::setSendBuffer(const char *str) { sendBuffer_->setBuf(str); }
-Buffer *Connection::getReadBuffer() { return readBuffer_; }
+Buffer *Connection::getReadBuffer() { return readBuffer_.get(); }
 const char *Connection::readBuffer() { return readBuffer_->c_str(); }
-Buffer *Connection::getSendBuffer() { return sendBuffer_; }
+Buffer *Connection::getSendBuffer() { return sendBuffer_.get(); }
 const char *Connection::sendBuffer() { return sendBuffer_->c_str(); }
 
 void Connection::setDeleteConnectionCallback(std::function<void(Socket *)> const &callback)
@@ -193,4 +185,4 @@ void Connection::setOnConnectCallback(std::function<void(Connection *)> const &c
 
 void Connection::getlineSendBuffer() { sendBuffer_->getline(); }
 
-Socket *Connection::getSocket() { return sock_; }
+Socket *Connection::getSocket() { return socket_.get(); }

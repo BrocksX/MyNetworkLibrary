@@ -1,9 +1,6 @@
 #include "TcpServer.h"
-
 #include <unistd.h>
-
 #include <functional>
-
 #include "Acceptor.h"
 #include "Connection.h"
 #include "EventLoop.h"
@@ -11,54 +8,51 @@
 #include "ThreadPool.h"
 #include "util.h"
 
-Server::Server(EventLoop *loop) : mainReactor_(loop), acceptor_(nullptr), thread_pool_(nullptr)
+TcpServer::TcpServer()
 {
-    acceptor_ = new Acceptor(mainReactor_);
-    std::function<void(Socket *)> cb = std::bind(&Server::NewConnection, this, std::placeholders::_1);
+    mainReactor_ = std::make_unique<EventLoop>();
+    acceptor_ = std::make_unique<Acceptor>(mainReactor_.get());
+
+    std::function<void(Socket *)> cb = std::bind(&TcpServer::NewConnection, this, std::placeholders::_1);
     acceptor_->setNewConnectionCallback(cb);
 
     int size = static_cast<int>(std::thread::hardware_concurrency());
-    thread_pool_ = new ThreadPool(size);
-    for (int i = 0; i < size; ++i)
+    threadPool_ = std::make_unique<ThreadPool>(size);
+    for (size_t i = 0; i < size; ++i)
     {
-        subReactors_.push_back(new EventLoop());
-    }
-
-    for (int i = 0; i < size; ++i)
-    {
-        std::function<void()> sub_loop = std::bind(&EventLoop::loop, subReactors_[i]);
-        thread_pool_->add(std::move(sub_loop));
+        sub_reactors_.push_back(std::move(std::make_unique<EventLoop>()));
     }
 }
 
-Server::~Server()
-{
-    delete acceptor_;
-    delete thread_pool_;
-}
+TcpServer::~TcpServer() {}
 
-void Server::NewConnection(Socket *sock)
+void TcpServer::NewConnection(Socket *sock)
 {
     errif(sock->getFd() == -1, "new connection error");
-    uint64_t random = sock->getFd() % subReactors_.size();
-    Connection *conn = new Connection(subReactors_[random], sock);
-    std::function<void(Socket *)> cb = std::bind(&Server::DeleteConnection, this, std::placeholders::_1);
+    uint64_t random = sock->getFd() % sub_reactors_.size();
+    std::unique_ptr<Connection> conn = std::make_unique<Connection>(sub_reactors_[random].get(), sock);
+    std::function<void(Socket *)> cb = std::bind(&TcpServer::DeleteConnection, this, std::placeholders::_1);
     conn->setDeleteConnectionCallback(cb);
-    conn->setOnConnectCallback(onConnectCallback_);
-    connections_[sock->getFd()] = conn;
+    conn->setOnConnectCallback(on_connect_callback_);
+    connections_[sock->getFd()] = std::move(conn);
 }
 
-void Server::DeleteConnection(Socket *sock)
+void TcpServer::DeleteConnection(Socket *sock)
 {
     int sockfd = sock->getFd();
     auto it = connections_.find(sockfd);
-    if (it != connections_.end())
-    {
-        Connection *conn = connections_[sockfd];
-        connections_.erase(sockfd);
-        delete conn;
-        conn = nullptr;
-    }
+    assert(it != connections_.end());
+    connections_.erase(sockfd);
 }
 
-void Server::OnConnect(std::function<void(Connection *)> fn) { onConnectCallback_ = std::move(fn); }
+void TcpServer::OnConnect(std::function<void(Connection *)> fn) { on_connect_callback_ = std::move(fn); }
+
+void TcpServer::start()
+{
+    for (size_t i = 0; i < sub_reactors_.size(); ++i)
+    {
+        std::function<void()> sub_loop = std::bind(&EventLoop::loop, sub_reactors_[i].get());
+        threadPool_->add(std::move(sub_loop));
+    }
+    mainReactor_->loop();
+}

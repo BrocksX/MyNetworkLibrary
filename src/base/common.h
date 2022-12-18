@@ -1,10 +1,11 @@
 #pragma once
 #include <cassert>
 #include <stdio.h>
+#include <memory>
 
-class Server;
+class TcpServer;
 class EventLoop;
-class Epoll;
+class Poller;
 class Acceptor;
 class Connection;
 class Channel;
