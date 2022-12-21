@@ -23,6 +23,7 @@ public:
 
     void read();
     void write();
+    void send(std::string msg);
 
     void setDeleteConnectionCallback(std::function<void(Socket *)> const &callback);
     void setOnConnectCallback(std::function<void(Connection *)> const &callback);

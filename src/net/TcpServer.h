@@ -4,6 +4,7 @@
 #include <functional>
 #include <unordered_map>
 #include <vector>
+
 class TcpServer
 {
 private:
@@ -14,18 +15,18 @@ private:
     std::unordered_map<int, std::unique_ptr<Connection>> connections_;
 
     std::unique_ptr<ThreadPool>threadPool_;
-
-    std::function<void(Connection *)> on_connect_callback_;
+    std::function<void(Connection *)> onConnectCallback_;
+    std::function<void(Connection *)> onRecvCallback_;
 
 public:
-    explicit TcpServer();
+    explicit TcpServer(const char* ip, uint16_t port);
     ~TcpServer();
 
     DISALLOW_COPY_AND_MOVE(TcpServer);
 
-    void NewConnection(Socket *sock);
-    void DeleteConnection(Socket *sock);
-    void OnConnect(std::function<void(Connection *)> fn);
-
+    void newConnection(Socket *sock);
+    void deleteConnection(Socket *sock);
+    void setOnRecvCallback(std::function<void(Connection *)> fn);
+    void setOnConnectCallback(std::function<void(Connection *)> fn);
     void start();
 };

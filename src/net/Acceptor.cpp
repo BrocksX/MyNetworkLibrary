@@ -3,10 +3,10 @@
 #include "Channel.h"
 #include <cstdio>
 
-Acceptor::Acceptor(EventLoop *loop)
+Acceptor::Acceptor(EventLoop *loop, const char* ip, uint16_t port)
 {
     socket_ = std::make_unique<Socket>();
-    InetAddress *addr = new InetAddress("127.0.0.1",8888);
+    InetAddress *addr = new InetAddress(ip,port);
     socket_->bind(addr);
     //sock_->setnonblocking();
     socket_->listen();

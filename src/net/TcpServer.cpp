@@ -8,12 +8,12 @@
 #include "ThreadPool.h"
 #include "util.h"
 
-TcpServer::TcpServer()
+TcpServer::TcpServer(const char* ip, uint16_t port)
 {
     mainReactor_ = std::make_unique<EventLoop>();
-    acceptor_ = std::make_unique<Acceptor>(mainReactor_.get());
+    acceptor_ = std::make_unique<Acceptor>(mainReactor_.get(), ip, port);
 
-    std::function<void(Socket *)> cb = std::bind(&TcpServer::NewConnection, this, std::placeholders::_1);
+    std::function<void(Socket *)> cb = std::bind(&TcpServer::newConnection, this, std::placeholders::_1);
     acceptor_->setNewConnectionCallback(cb);
 
     int size = static_cast<int>(std::thread::hardware_concurrency());
@@ -26,18 +26,21 @@ TcpServer::TcpServer()
 
 TcpServer::~TcpServer() {}
 
-void TcpServer::NewConnection(Socket *sock)
+void TcpServer::newConnection(Socket *sock)
 {
     errif(sock->getFd() == -1, "new connection error");
     uint64_t random = sock->getFd() % sub_reactors_.size();
     std::unique_ptr<Connection> conn = std::make_unique<Connection>(sub_reactors_[random].get(), sock);
-    std::function<void(Socket *)> cb = std::bind(&TcpServer::DeleteConnection, this, std::placeholders::_1);
+    std::function<void(Socket *)> cb = std::bind(&TcpServer::deleteConnection, this, std::placeholders::_1);
     conn->setDeleteConnectionCallback(cb);
-    conn->setOnConnectCallback(on_connect_callback_);
+    conn->setOnConnectCallback(onRecvCallback_);
     connections_[sock->getFd()] = std::move(conn);
+
+    if(onConnectCallback_)
+        onConnectCallback_(connections_[sock->getFd()].get());
 }
 
-void TcpServer::DeleteConnection(Socket *sock)
+void TcpServer::deleteConnection(Socket *sock)
 {
     int sockfd = sock->getFd();
     auto it = connections_.find(sockfd);
@@ -45,7 +48,8 @@ void TcpServer::DeleteConnection(Socket *sock)
     connections_.erase(sockfd);
 }
 
-void TcpServer::OnConnect(std::function<void(Connection *)> fn) { on_connect_callback_ = std::move(fn); }
+void TcpServer::setOnRecvCallback(std::function<void(Connection *)> fn) { onRecvCallback_ = std::move(fn); }
+void TcpServer::setOnConnectCallback(std::function<void(Connection *)> fn) { onConnectCallback_ = std::move(fn); }
 
 void TcpServer::start()
 {
@@ -56,3 +60,4 @@ void TcpServer::start()
     }
     mainReactor_->loop();
 }
+

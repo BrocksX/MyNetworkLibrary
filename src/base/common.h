@@ -12,6 +12,8 @@ class Channel;
 class Socket;
 class Buffer;
 class ThreadPool;
+class Timestamp;
+class Timer;
 
 #define DISALLOW_COPY(cname)     \
   cname(const cname &) = delete; \

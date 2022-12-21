@@ -1,9 +1,0 @@
-/home/net/桌面/server/build/CMakeFiles/myTinyServer.dir
-/home/net/桌面/server/build/CMakeFiles/edit_cache.dir
-/home/net/桌面/server/build/CMakeFiles/rebuild_cache.dir
-/home/net/桌面/server/build/test/CMakeFiles/server.dir
-/home/net/桌面/server/build/test/CMakeFiles/thread.dir
-/home/net/桌面/server/build/test/CMakeFiles/client.dir
-/home/net/桌面/server/build/test/CMakeFiles/test.dir
-/home/net/桌面/server/build/test/CMakeFiles/edit_cache.dir
-/home/net/桌面/server/build/test/CMakeFiles/rebuild_cache.dir

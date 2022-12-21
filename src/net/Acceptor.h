@@ -1,7 +1,7 @@
 #pragma once
 #include <functional>
 #include "common.h"
-
+#include <string>
 class Acceptor
 {
 private:
@@ -10,7 +10,7 @@ private:
     std::function<void(Socket*)> newConnectionCallback_;
 public:
     DISALLOW_COPY_AND_MOVE(Acceptor);
-    explicit Acceptor(EventLoop *loop);
+    explicit Acceptor(EventLoop *loop, const char* ip, uint16_t port);
     ~Acceptor();
 
     void acceptConnection() const;

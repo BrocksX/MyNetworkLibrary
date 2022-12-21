@@ -25,7 +25,7 @@ Connection::Connection(EventLoop *loop, Socket *socket) : socket_(socket)
     state_ = State::Connected;
 }
 
-Connection::~Connection(){}
+Connection::~Connection() {}
 
 void Connection::read()
 {
@@ -186,3 +186,9 @@ void Connection::setOnConnectCallback(std::function<void(Connection *)> const &c
 void Connection::getlineSendBuffer() { sendBuffer_->getline(); }
 
 Socket *Connection::getSocket() { return socket_.get(); }
+
+void Connection::send(std::string msg)
+{
+    setSendBuffer(msg.c_str());
+    write();
+}
