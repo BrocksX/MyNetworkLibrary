@@ -8,12 +8,6 @@ target_link_libraries(echo_client myTinyServer)
 add_executable(echo_mul_clients echo_mul_clients.cpp)
 target_link_libraries(echo_mul_clients myTinyServer)
 
-add_executable(timertest timertest.cpp)
-target_link_libraries(timertest myTinyServer)
-
-add_executable(redistest redistest.cpp)
-target_link_libraries(redistest myTinyServer)
-
 add_executable(chat_server chat_server.cpp)
 target_link_libraries(chat_server myTinyServer)
 

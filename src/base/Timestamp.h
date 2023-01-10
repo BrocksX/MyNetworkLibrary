@@ -12,7 +12,7 @@ public:
     ~Timestamp();
 
     static Timestamp now();
-    std::string toString() const;
+    std::string toString(bool showMicroseconds = false) const;
     std::string toFormattedString(bool showMicroseconds = false) const;
 
     int64_t getMicroSecondsSinceEpoch() const;

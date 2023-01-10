@@ -22,13 +22,13 @@ void OneClient(int msgs, int wait) {
       break;
     }
     conn->read();
-    std::cout << "msg count " << count++ << ": " << conn->readBuffer() << std::endl;
+    printf("msg count %d: %s\n", count++, conn->readBuffer());
   }
   delete conn;
 }
 
 int main(int argc, char *argv[]) {
-  int threads = 10;
+  int threads = 100;
   int msgs = 100;
   int wait = 0;
   int o = -1;
