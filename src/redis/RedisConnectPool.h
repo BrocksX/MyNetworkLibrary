@@ -27,9 +27,4 @@ public:
     //bool isUseful(Redis *conn);
     int getFreeNum();
     int getUsedCount();
-
-protected:
-    // redisContext *connect();
-    //bool iniConnectPool();
-    //bool reConnect(Redis *conn);
 };

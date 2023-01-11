@@ -45,6 +45,7 @@ int main()
         }
         std::string score = clock->now().toString(true);
         std::string member = receiveMsg.dump();
+        
         Redis* red = redisConns->getConnect();
         red->zadd("message", score, member);
         redisConns->releaseConnect(red);

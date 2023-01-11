@@ -63,7 +63,6 @@ std::string Timestamp::toString(bool showMicroseconds) const
 {
     char buf[64] = {0};
     time_t seconds = static_cast<time_t>(microSecondsSinceEpoch_ / kMicroSecondsPerSecond);
-    // 使用localtime函数将秒数格式化成日历时间
     tm *tm_time = localtime(&seconds);
     if (showMicroseconds)
     {

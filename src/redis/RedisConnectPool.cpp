@@ -21,10 +21,10 @@ bool RedisConnectPool::connect()
 {
     for (int i = 0; i < size_; ++i)
     {
-        Redis *redis = new Redis();
-        if(redis->connect(ip_, port_, password_))
+        Redis *conn = new Redis();
+        if(conn->connect(ip_, port_, password_))
         {
-            connectPool_.push_back(redis);
+            connectPool_.push_back(conn);
         }
         else
             return false;
@@ -34,7 +34,7 @@ bool RedisConnectPool::connect()
 
 Redis *RedisConnectPool::getConnect()
 {
-    Redis *conn = NULL;
+    Redis *conn = nullptr;
     {
         std::unique_lock<std::mutex> lock(mutex_);
         if(connectPool_.empty())
@@ -50,9 +50,10 @@ Redis *RedisConnectPool::getConnect()
     }
     if(conn == nullptr)
     {
-        if(!conn->connect(this->ip_, this->port_, this->password_))
+        conn = new Redis();
+        if(!conn->connect(ip_, port_, password_))
         {
-            return nullptr;
+            exit(0);
         }
     }
     return conn;
@@ -69,7 +70,6 @@ void RedisConnectPool::releaseConnect(Redis *conn)
         connectPool_.push_back(conn);
         usedCount_--;
     }
-    //delete conn;
 }
 
 int RedisConnectPool::getFreeNum(){return connectPool_.size();}

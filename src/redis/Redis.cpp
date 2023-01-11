@@ -1,14 +1,14 @@
 #include "Redis.h"
 
+
 bool Redis::connect(std::string ip, uint16_t port, std::string password)
 {
-    if(connect_)
+    if (connect_)
     {
         redisFree(connect_.get());
     }
     connect_ = std::unique_ptr<redisContext>(redisConnect(ip.c_str(), port));
-    //std::make_unique<redisContext>(redisConnect(ip.c_str(), port));
-    if (!password .empty())
+    if (!password.empty())
     {
         std::string cmd = "AUTH " + password;
         redisReply *reply = (redisReply *)::redisCommand(connect_.get(), cmd.c_str());
@@ -19,7 +19,6 @@ bool Redis::connect(std::string ip, uint16_t port, std::string password)
         else if (reply->str != "OK")
         {
             freeReplyObject(reply);
-            reply = NULL;
             return false;
         }
     }
@@ -31,21 +30,56 @@ bool Redis::connect(std::string ip, uint16_t port, std::string password)
     return true;
 }
 
+void Redis::disconnect()
+{
+    if (connect_.get() != nullptr)
+    {
+        redisFree(connect_.get());
+    }
+}
+
 std::string Redis::get(std::string key)
 {
-    reply_ = std::unique_ptr<redisReply>((redisReply *)redisCommand(connect_.get(), "GET %s", key.c_str()));
+    redisReply *reply_ = (redisReply *)redisCommand(connect_.get(), "GET %s", key.c_str());
     std::string str = reply_->str;
-    freeReplyObject(reply_.get());
+    freeReplyObject(reply_);
     return str;
 }
 
-void Redis::set(std::string key, std::string value)
+bool Redis::set(const std::string &key, const std::string &value)
 {
-    redisCommand(connect_.get(), "SET %s %s", key.c_str(), value.c_str());
+    if (connect_ == NULL)
+    {
+        return false;
+    }
+    redisReply *reply = (redisReply *)redisCommand(connect_.get(), "SET %s %s ", key.c_str(), value.c_str());
+    if (reply != nullptr)
+    {
+        if (strcasecmp(reply->str, "OK") == 0)
+        {
+            return true;
+        }
+        freeReply(reply);
+    }
+    return true;
 }
 
-void Redis::setWithTimeout(std::string key, std::string value, int time = 300)
+bool Redis::setWithTimeout(std::string key, std::string value, int time)
 {
+    if (connect_ == NULL)
+    {
+        return false;
+    }
+    redisReply *reply = (redisReply *)redisCommand(connect_.get(), "SET %s %s  EX %d", key.c_str(), value.c_str(), time);
+    if (reply != nullptr)
+    {
+        if (strcasecmp(reply->str, "OK") == 0)
+        {
+            return true;
+        }
+        freeReply(reply);
+    }
+    return true;
     redisCommand(connect_.get(), "SET %s %s  EX %d", key.c_str(), value.c_str(), time);
 }
 
@@ -61,23 +95,23 @@ bool Redis::execReturnArray(const std::string &cmd, std::vector<std::string> &re
         return false;
     }
 
-    redisReply *_reply = (redisReply *)::redisCommand(connect_.get(), cmd.c_str());
-    if (_reply != NULL)
+    redisReply *reply = (redisReply *)::redisCommand(connect_.get(), cmd.c_str());
+    if (reply != NULL)
     {
-        if (_reply->type == REDIS_REPLY_ARRAY)
+        if (reply->type == REDIS_REPLY_ARRAY)
         {
-            int32_t elements = _reply->elements;
+            int32_t elements = reply->elements;
             ret.reserve(elements);
             for (int32_t i = 0; i < elements; ++i)
             {
-                std::string strTemp(_reply->element[i]->str, _reply->element[i]->len);
+                std::string strTemp(reply->element[i]->str, reply->element[i]->len);
                 ret.push_back(strTemp);
             }
-            freeReplyObject(_reply);
+            freeReplyObject(reply);
             return true;
         }
     }
-    freeReplyObject(_reply);
+    freeReplyObject(reply);
     return false;
 }
 
@@ -92,11 +126,10 @@ bool Redis::zrange(const std::string &key, int64_t start, int64_t stop, std::vec
     return false;
 }
 
-void Redis::disconnect()
+void Redis::freeReply(redisReply *reply)
 {
-    if (connect_.get() != nullptr)
+    if (reply)
     {
-        // DEBUG<<"free _context"<<std::endl;
-        ::redisFree(connect_.get());
+        freeReplyObject(reply);
     }
 }
