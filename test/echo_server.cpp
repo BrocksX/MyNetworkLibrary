@@ -8,13 +8,11 @@
 
 int main()
 {
-    RedisConnectPool *redisConns = new RedisConnectPool("127.0.0.1",6379, 20);
+    RedisConnectPool *redisConns = new RedisConnectPool("127.0.0.1", 6379, 20);
     redisConns->connect();
     Timestamp *clock = new Timestamp();
 
-
-    TcpServer *server = new TcpServer("127.0.0.1", 8888);
-
+    TcpServer *server = new TcpServer("0.0.0.0", 8888);
 
     server->setOnRecvCallback([&redisConns, &clock](Connection *conn)
                               {
@@ -28,10 +26,11 @@ int main()
     red->setWithTimeout(clock->now().toString(true), conn->readBuffer());
     redisConns->releaseConnect(red);
 
+    std::cout<<conn->readBuffer()<<std::endl;
     conn->setSendBuffer(conn->readBuffer());
     conn->write(); });
     server->start();
-    
+
     delete server;
     return 0;
 }

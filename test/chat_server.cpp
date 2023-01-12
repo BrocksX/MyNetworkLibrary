@@ -10,7 +10,7 @@
 using json = nlohmann::json_abi_v3_11_2::json;
 int main()
 {
-    TcpServer *server = new TcpServer("127.0.0.1", 8888);
+    TcpServer *server = new TcpServer("0.0.0.0", 8888);
     RedisConnectPool *redisConns = new RedisConnectPool("127.0.0.1",6379, 20);
     Timestamp *clock = new Timestamp();
     std::unordered_map<int, Connection *> client;
@@ -22,7 +22,9 @@ int main()
     server->setOnRecvCallback([&redisConns, &clock, &client](Connection *conn)
                                 {
     conn->read();
-    if (conn->getState() == Connection::State::Closed) {
+    if (conn->getState() == Connection::State::Closed) 
+    {
+        client.erase(conn->getSocket()->getFd());
         conn->close();
         return;
     }
@@ -61,9 +63,9 @@ int main()
         content += " has joint";
         msg["content"] = content;
         std::cout << content << std::endl;
-        std::vector<std::string> values;
         //printf("%s", content.c_str());
 
+        std::vector<std::string> values;
         Redis* red = redisConns->getConnect();
         bool foundHistroy = red->zrange("message", 0, 1000000, values, false);
         redisConns->releaseConnect(red);

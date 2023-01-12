@@ -68,7 +68,7 @@ void Connection::readNonBlocking()
         }
         else if (bytes_read == -1 && errno == EINTR)
         { // 程序正常中断、继续读取
-            printf("continue reading\n");
+            //printf("continue reading\n");
             continue;
         }
         else if (bytes_read == -1 &&
@@ -78,7 +78,7 @@ void Connection::readNonBlocking()
         }
         else if (bytes_read == 0)
         { // EOF，客户端断开连接
-            printf("read EOF, client fd %d disconnected\n", sockfd);
+            printf("client fd %d disconnected\n", sockfd);
             state_ = State::Closed;
             break;
         }
@@ -102,7 +102,7 @@ void Connection::writeNonBlocking()
         ssize_t bytes_write = ::write(sockfd, buf + data_size - data_left, data_left);
         if (bytes_write == -1 && errno == EINTR)
         {
-            printf("continue writing\n");
+            //printf("continue writing\n");
             continue;
         }
         if (bytes_write == -1 && errno == EAGAIN)
@@ -137,7 +137,7 @@ void Connection::readBlocking()
     }
     else if (bytes_read == 0)
     {
-        printf("read EOF, blocking client fd %d disconnected\n", sockfd);
+        printf("blocking client fd %d disconnected\n", sockfd);
         state_ = State::Closed;
     }
     else if (bytes_read == -1)
