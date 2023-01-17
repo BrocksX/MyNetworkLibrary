@@ -47,7 +47,7 @@ private:
     std::unique_ptr<Buffer> sendBuffer_;
     std::function<void(Socket *)> deleteConnectioinCallback_;
 
-    std::function<void(Connection *)> on_connect_callback_;
+    std::function<void(Connection *)> onConnectCallback_;
 
     void readNonBlocking();
     void writeNonBlocking();

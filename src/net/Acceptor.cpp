@@ -8,7 +8,7 @@ Acceptor::Acceptor(EventLoop *loop, const char* ip, uint16_t port)
     socket_ = std::make_unique<Socket>();
     InetAddress *addr = new InetAddress(ip,port);
     socket_->bind(addr);
-    //sock_->setnonblocking();
+    //socket_->setNonBlocking();
     socket_->listen();
     channel_ = std::make_unique<Channel>(loop,socket_->getFd());
     std::function<void()> cb = std::bind(&Acceptor::acceptConnection, this);

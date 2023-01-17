@@ -71,8 +71,7 @@ void Connection::readNonBlocking()
             //printf("continue reading\n");
             continue;
         }
-        else if (bytes_read == -1 &&
-                 ((errno == EAGAIN) || (errno == EWOULDBLOCK)))
+        else if (bytes_read == -1 && ((errno == EAGAIN) || (errno == EWOULDBLOCK)))
         { // 非阻塞IO，这个条件表示数据全部读取完毕
             break;
         }
@@ -102,7 +101,7 @@ void Connection::writeNonBlocking()
         ssize_t bytes_write = ::write(sockfd, buf + data_size - data_left, data_left);
         if (bytes_write == -1 && errno == EINTR)
         {
-            //printf("continue writing\n");
+            printf("continue writing\n");
             continue;
         }
         if (bytes_write == -1 && errno == EAGAIN)
@@ -178,9 +177,9 @@ void Connection::setDeleteConnectionCallback(std::function<void(Socket *)> const
 }
 void Connection::setOnConnectCallback(std::function<void(Connection *)> const &callback)
 {
-    on_connect_callback_ = callback;
+    onConnectCallback_ = callback;
     channel_->setReadCallback([this]()
-                              { on_connect_callback_(this); });
+                              { onConnectCallback_(this); });
 }
 
 void Connection::getlineSendBuffer() { sendBuffer_->getline(); }

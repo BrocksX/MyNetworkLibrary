@@ -5,33 +5,38 @@
 #include <vector>
 #include <string.h>
 #include "common.h"
+#include <unordered_map>
 class Redis
 {
 public:
-	DISALLOW_COPY_AND_MOVE(Redis);
+    DISALLOW_COPY_AND_MOVE(Redis);
     Redis() = default;
     ~Redis() = default;
 
- 	//创建连接
-	bool connect(std::string ip, uint16_t port, std::string password = "");
+    // 创建连接
+    bool connect(std::string ip, uint16_t port, std::string password = "");
     void disconnect();
-    void freeReply(redisReply * reply);
 
-	//get请求
+    bool set(const std::string &key, const std::string &value);
+    bool setWithTimeout(const std::string &key, const std::string &value, const int64_t &sceonds = 100);
     std::string get(std::string key);
-	//set请求
-	bool set(const std::string& key, const std::string& value);
-	bool setWithTimeout(std::string key, std::string value, int time = 100);
+
+    int64_t hset(const std::string &key, const std::unordered_map<std::string, std::string> &fields_vals);
+    bool hget(const std::string &key, const std::string &field, std::string &value);
+    bool hmget(const std::string &key, const std::vector<std::string> &fields, std::vector<std::string> &values);
+    bool hexists(const std::string &key, const std::string &field);
 
     void zadd(std::string key, std::string score, std::string member);
-    bool zrange(const std::string& key, int64_t start, int64_t stop, std::vector<std::string>& values, bool withScores);
- 
-    
+    bool zrange(const std::string &key, int64_t start, int64_t stop, std::vector<std::string> &values, bool withScores);
+
 private:
     std::unique_ptr<redisContext> connect_;
-    bool execReturnArray(const std::string& cmd, std::vector<std::string>& ret);
-    //bool execReturnStatus(const char *format, ...);
-    //std::string ip_;
-    //uint16_t port_;
-	//std::string pwd_;
+    bool execReplyString(const std::vector<std::string> &args, std::string &ret);
+    bool execReplyArray(const std::string &cmd, std::vector<std::string> &ret);
+    bool execReplyInt(const std::vector<std::string> &args, int64_t &ret);
+    bool execReplyStatus(const std::vector<std::string> &args, std::string &ret);
+
+    // std::string ip_;
+    // uint16_t port_;
+    // std::string pwd_;
 };

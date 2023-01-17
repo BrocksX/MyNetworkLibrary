@@ -12,7 +12,10 @@ Socket::Socket()
     fd_ = socket(AF_INET, SOCK_STREAM, 0);
     errif(fd_ == -1, "socket create error");
 }
-Socket::Socket(int fd) : fd_(fd) { errif(fd_ == -1, "socket create error"); }
+Socket::Socket(int fd) : fd_(fd) 
+{ 
+    errif(fd_ == -1, "socket create error"); 
+}
 
 Socket::~Socket()
 {
@@ -36,7 +39,6 @@ bool Socket::isNonBlocking() { return (fcntl(fd_, F_GETFL) & O_NONBLOCK) != 0; }
 
 int Socket::accept(InetAddress *addr)
 {
-    // for server socket
     int clnt_sockfd = -1;
     sockaddr_in tmp_addr{};
     socklen_t addr_len = sizeof(tmp_addr);
