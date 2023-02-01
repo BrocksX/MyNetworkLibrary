@@ -52,3 +52,5 @@ void Channel::setInEpoll(bool in) { inEpoll_ = in; }
 void Channel::setReadyEvents(uint32_t ev) { readyEvents_ = ev; }
 
 void Channel::setReadCallback(std::function<void()> const &callback) { readCallback_ = callback; }
+
+void Channel::setWriteCallback(std::function<void()> const &callback) { writeCallback_ = callback; }

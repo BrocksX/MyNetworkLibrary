@@ -3,7 +3,7 @@
 #include <list>
 #include <mutex>
 #include "Redis.h"
-#include "common.h"
+#include "nocopyable.h"
 
 class RedisConnectPool
 {

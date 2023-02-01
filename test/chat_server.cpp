@@ -19,7 +19,7 @@ int main()
     std::unordered_map<int, std::string> fd_name;
     std::unordered_map<std::string, Connection *> name_conn;
 
-    server->setOnRecvCallback([&redisConns, &clock, &client, &fd_name, &name_conn](Connection *conn)
+    server->setMessageCallback([&redisConns, &clock, &client, &fd_name, &name_conn](Connection *conn)
                               {
     conn->read();
     if (conn->getState() == Connection::State::Closed) //关闭连接

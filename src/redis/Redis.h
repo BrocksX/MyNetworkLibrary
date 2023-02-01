@@ -4,8 +4,10 @@
 #include <string>
 #include <vector>
 #include <string.h>
-#include "common.h"
+#include <memory>
+#include "nocopyable.h"
 #include <unordered_map>
+
 class Redis
 {
 public:
@@ -35,8 +37,4 @@ private:
     bool execReplyArray(const std::string &cmd, std::vector<std::string> &ret);
     bool execReplyInt(const std::vector<std::string> &args, int64_t &ret);
     bool execReplyStatus(const std::vector<std::string> &args, std::string &ret);
-
-    // std::string ip_;
-    // uint16_t port_;
-    // std::string pwd_;
 };

@@ -1,5 +1,5 @@
 #pragma once
-#include "common.h"
+#include "nocopyable.h"
 #include <functional>
 #include "Timestamp.h"
 
@@ -12,7 +12,7 @@ private:
     bool repeat_;
 
 public:
-    Timer(std::function<void()> cb, Timestamp time, double  interval);
+    Timer(std::function<void()> cb, Timestamp time, double interval);
     ~Timer() = default;
 
     void run() const;

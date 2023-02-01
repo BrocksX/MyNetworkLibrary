@@ -1,29 +1,11 @@
 #pragma once
 #include <arpa/inet.h>
-#include "common.h"
+#include "nocopyable.h"
+#include "InetAddress.h"
 
-class InetAddress
-{
-public:
-    InetAddress();
-    InetAddress(const char *ip, uint16_t port);
-    ~InetAddress() = default;
-
-    DISALLOW_COPY_AND_MOVE(InetAddress);
-
-    void setAddr(sockaddr_in addr);
-    sockaddr_in getAddr();
-    const char *getIp();
-    uint16_t getPort();
-
-private:
-    sockaddr_in addr_{};
-};
-
+class InetAddress;
 class Socket
 {
-private:
-    int fd_{-1};
 
 public:
     Socket();
@@ -42,4 +24,7 @@ public:
     void setNonBlocking();
     bool isNonBlocking();
     int getFd();
+
+private:
+    int fd_{-1};
 };

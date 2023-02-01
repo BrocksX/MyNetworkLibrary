@@ -14,7 +14,7 @@ int main()
 
     TcpServer *server = new TcpServer("0.0.0.0", 8888);
 
-    server->setOnRecvCallback([&redisConns, &clock](Connection *conn)
+    server->setMessageCallback([&redisConns, &clock](Connection *conn)
                               {
     conn->read();
     if (conn->getState() == Connection::State::Closed) {
@@ -22,9 +22,9 @@ int main()
       return;
     }
 
-    Redis* red = redisConns->getConnect();
-    red->setWithTimeout(clock->now().toString(true), conn->readBuffer());
-    redisConns->releaseConnect(red);
+    //Redis* red = redisConns->getConnect();
+    //red->setWithTimeout(clock->now().toString(true), conn->readBuffer());
+    //redisConns->releaseConnect(red);
 
     std::cout<<conn->readBuffer()<<std::endl;
     conn->setSendBuffer(conn->readBuffer());

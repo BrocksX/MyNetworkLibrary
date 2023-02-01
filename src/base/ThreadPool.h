@@ -6,24 +6,25 @@
 #include <mutex>
 #include <condition_variable>
 #include <future>
-#include "common.h"
+#include "nocopyable.h"
+
 class ThreadPool
 {
+public:
+    DISALLOW_COPY_AND_MOVE(ThreadPool);
+    explicit ThreadPool(int size = std::thread::hardware_concurrency());
+    ~ThreadPool();
+
+    template <class F, class... Args>
+    auto add(F &&f, Args &&...args)
+        -> std::future<typename std::result_of<F(Args...)>::type>;
+
 private:
   std::vector<std::thread> threads_;
   std::queue<std::function<void()>> tasks_;
   std::mutex queue_mtx_;
   std::condition_variable cv_;
   bool stop_;
-
-public:
-  DISALLOW_COPY_AND_MOVE(ThreadPool);
-  explicit ThreadPool(int size = std::thread::hardware_concurrency());
-  ~ThreadPool();
-
-  template <class F, class... Args>
-  auto add(F &&f, Args &&...args)
-      -> std::future<typename std::result_of<F(Args...)>::type>;
 };
 
 template <class F, class... Args>

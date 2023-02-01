@@ -4,13 +4,13 @@
 
 const std::string &Buffer::buf() const { return buf_; }
 
-void Buffer::append(const char *_str, int _size)
+void Buffer::append(const char *str, const int &size)
 {
-    for (int i = 0; i < _size; ++i)
+    for (int i = 0; i < size; ++i)
     {
-        if (_str[i] == '\0')
+        if (str[i] == '\0')
             break;
-        buf_.push_back(_str[i]);
+        buf_.push_back(str[i]);
     }
 }
 ssize_t Buffer::size() const

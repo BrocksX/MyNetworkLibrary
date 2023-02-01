@@ -1,12 +1,12 @@
 #pragma once
 #include <sys/epoll.h>
 #include <vector>
-#include "common.h"
+#include "nocopyable.h"
+
+class Channel;
+
 class Poller
 {
-private:
-    int epfd_;
-    epoll_event *events_;
 public:
     DISALLOW_COPY_AND_MOVE(Poller);
     Poller();
@@ -15,4 +15,8 @@ public:
     void updateChannel(Channel*);
     void deleteChannel(Channel*);
     std::vector<Channel*> poll(int timeout = -1);
+
+private:
+    int epfd_;
+    epoll_event *events_;
 };

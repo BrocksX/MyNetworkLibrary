@@ -1,12 +1,9 @@
 #include "Connection.h"
-
 #include <unistd.h>
-
 #include <cassert>
 #include <cstring>
 #include <iostream>
 #include <utility>
-
 #include "Buffer.h"
 #include "Channel.h"
 #include "Socket.h"
@@ -118,10 +115,6 @@ void Connection::writeNonBlocking()
     }
 }
 
-/**
- * @brief Never used by server, only for client
- *
- */
 void Connection::readBlocking()
 {
     int sockfd = socket_->getFd();
@@ -146,10 +139,6 @@ void Connection::readBlocking()
     }
 }
 
-/**
- * @brief Never used by server, only for client
- *
- */
 void Connection::writeBlocking()
 {
     // 没有处理send_buffer_数据大于TCP写缓冲区，的情况，可能会有bug
@@ -175,11 +164,11 @@ void Connection::setDeleteConnectionCallback(std::function<void(Socket *)> const
 {
     deleteConnectioinCallback_ = callback;
 }
-void Connection::setOnConnectCallback(std::function<void(Connection *)> const &callback)
+void Connection::setMessageCallback(std::function<void(Connection *)> const &callback)
 {
-    onConnectCallback_ = callback;
+    messageCallback_ = callback;
     channel_->setReadCallback([this]()
-                              { onConnectCallback_(this); });
+                              { messageCallback_(this); });
 }
 
 void Connection::getlineSendBuffer() { sendBuffer_->getline(); }

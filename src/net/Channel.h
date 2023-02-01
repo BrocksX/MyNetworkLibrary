@@ -1,7 +1,10 @@
 #pragma once
-#include "common.h"
+#include "nocopyable.h"
 #include <functional>
 #include <cstdint>
+
+class EventLoop;
+
 class Channel
 {
 public:
@@ -22,6 +25,7 @@ public:
 
     void setReadyEvents(uint32_t ev);
     void setReadCallback(std::function<void()> const &callback);
+    void setWriteCallback(std::function<void()> const &callback);
 
 private:
     EventLoop *loop_;

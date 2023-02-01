@@ -1,19 +1,4 @@
 #pragma once
-#include <cassert>
-#include <stdio.h>
-#include <memory>
-
-class TcpServer;
-class EventLoop;
-class Poller;
-class Acceptor;
-class Connection;
-class Channel;
-class Socket;
-class Buffer;
-class ThreadPool;
-class Timestamp;
-class Timer;
 
 #define DISALLOW_COPY(cname)     \
   cname(const cname &) = delete; \
@@ -26,3 +11,8 @@ class Timer;
 #define DISALLOW_COPY_AND_MOVE(cname) \
   DISALLOW_COPY(cname);               \
   DISALLOW_MOVE(cname);
+
+#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
+  TypeName(const TypeName&);               \
+  void operator=(const TypeName&)
+  

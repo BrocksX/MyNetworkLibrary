@@ -1,22 +1,21 @@
 #pragma once
 #include "Timestamp.h"
 #include "Channel.h"
-#include "common.h"
+#include "nocopyable.h"
 #include <vector>
 #include <set>
+#include "Timer.h"
+class Timer;
 
 class TimerQueue
 {
 public:
-    using TimerCallback = std::function<void()>;
-
+    DISALLOW_COPY_AND_MOVE(TimerQueue);
     explicit TimerQueue(EventLoop* loop);
     ~TimerQueue();
 
     // 插入定时器（回调函数，到期时间，是否重复）
-    void addTimer(TimerCallback cb,
-                  Timestamp when,
-                  double interval);
+    void addTimer(std::function<void()> cb, Timestamp when, double interval);
     
 private:
     using Entry = std::pair<Timestamp, Timer*>; // 以时间戳作为键值获取定时器
@@ -42,7 +41,7 @@ private:
     bool insert(Timer* timer);
 
     EventLoop* loop_; 
-    const int timerfd_;
+    int timerfd_;
     Channel timerfdChannel_;
     TimerList timers_;
 

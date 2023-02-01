@@ -1,6 +1,8 @@
 #pragma once
-#include "common.h"
+#include "nocopyable.h"
 #include <functional>
+#include <string>
+#include <memory>
 
 class EventLoop;
 class Socket;
@@ -26,7 +28,8 @@ public:
     void send(std::string msg);
 
     void setDeleteConnectionCallback(std::function<void(Socket *)> const &callback);
-    void setOnConnectCallback(std::function<void(Connection *)> const &callback);
+    void setMessageCallback(std::function<void(Connection *)> const &callback);
+
     State getState();
     void close();
     void setSendBuffer(const char *str);
@@ -37,7 +40,6 @@ public:
     void getlineSendBuffer();
     Socket *getSocket();
 
-    void onConnect(std::function<void()> fn);
 
 private:
     std::unique_ptr<Socket> socket_;
@@ -46,8 +48,7 @@ private:
     std::unique_ptr<Buffer> readBuffer_;
     std::unique_ptr<Buffer> sendBuffer_;
     std::function<void(Socket *)> deleteConnectioinCallback_;
-
-    std::function<void(Connection *)> onConnectCallback_;
+    std::function<void(Connection *)> messageCallback_;
 
     void readNonBlocking();
     void writeNonBlocking();

@@ -6,21 +6,13 @@
 #include <unistd.h>
 #include <string.h>
 #include <util.h>
-int createTimerfd()
-{
 
-    int timerfd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
-    errif(timerfd < 0, "Failed in timerfd_create");
-    return timerfd;
-}
 
-TimerQueue::TimerQueue(EventLoop* loop) : loop_(loop),
-      timerfd_(createTimerfd()),
-      timerfdChannel_(loop_, timerfd_),
-      timers_()
+TimerQueue::TimerQueue(EventLoop* loop) : loop_(loop), timerfdChannel_(loop_, timerfd_), timers_()
 {
-    timerfdChannel_.setReadCallback(
-        std::bind(&TimerQueue::handleRead, this));
+    timerfd_ = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
+    errif(timerfd_ < 0, "Failed in timerfd_create");
+    timerfdChannel_.setReadCallback(std::bind(&TimerQueue::handleRead, this));
     timerfdChannel_.enableRead();
 }
 
@@ -37,12 +29,11 @@ TimerQueue::~TimerQueue()
     }
 }
 
-void TimerQueue::addTimer(TimerCallback cb,
-                          Timestamp when,
-                          double interval)
+void TimerQueue::addTimer(std::function<void()> cb, Timestamp when, double interval)
 {
     Timer* timer = new Timer(std::move(cb), when, interval);
     //fix it
+    addTimerInLoop(timer);
     //loop_->runInLoop(std::bind(&TimerQueue::addTimerInLoop, this, timer));
 }
 

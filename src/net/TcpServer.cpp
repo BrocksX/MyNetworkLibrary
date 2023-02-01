@@ -33,11 +33,11 @@ void TcpServer::newConnection(Socket *sock)
     std::unique_ptr<Connection> conn = std::make_unique<Connection>(sub_reactors_[random].get(), sock);
     std::function<void(Socket *)> cb = std::bind(&TcpServer::deleteConnection, this, std::placeholders::_1);
     conn->setDeleteConnectionCallback(cb);
-    conn->setOnConnectCallback(onRecvCallback_);
+    conn->setMessageCallback(messageCallback_);
     connections_[sock->getFd()] = std::move(conn);
 
-    if(onConnectCallback_)
-        onConnectCallback_(connections_[sock->getFd()].get());
+    if(connectionCallback_)
+        connectionCallback_(connections_[sock->getFd()].get());
 }
 
 void TcpServer::deleteConnection(Socket *sock)
@@ -48,8 +48,8 @@ void TcpServer::deleteConnection(Socket *sock)
     connections_.erase(sockfd);
 }
 
-void TcpServer::setOnRecvCallback(std::function<void(Connection *)> fn) { onRecvCallback_ = std::move(fn); }
-void TcpServer::setOnConnectCallback(std::function<void(Connection *)> fn) { onConnectCallback_ = std::move(fn); }
+void TcpServer::setMessageCallback(std::function<void(Connection *)> fn) { messageCallback_ = std::move(fn); }
+void TcpServer::setConnectionCallback(std::function<void(Connection *)> fn) { connectionCallback_ = std::move(fn); }
 
 void TcpServer::start()
 {

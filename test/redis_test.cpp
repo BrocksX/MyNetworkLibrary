@@ -1,11 +1,13 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <functional>
+#include "EventLoop.h"
 #include "Timestamp.h"
 #include "RedisConnectPool.h"
 
 using namespace std;
-
+/*
 int main()
 {
     RedisConnectPool *redisConns = new RedisConnectPool("127.0.0.1", 6379, 20);
@@ -20,13 +22,16 @@ int main()
     redisConns->releaseConnect(red);
 
     delete redisConns;
-}
-/*
+}*/
+
 int main()
 {
-    Timestamp *t = new Timestamp();
-    int64_t aa = t->now().getSecondsSinceEpoch();
-    cout<< aa <<endl;
+    EventLoop *loop = new EventLoop();
+    printf("cnm\n");
+    cout<<"cnm"<<endl;
+    Timestamp time;
+    time = addTime(time.now(), 5);
+    loop->runAt(time, [](){cout<<"cnm"<<endl;});
+    loop->loop();
     return 0;
 }
-*/
