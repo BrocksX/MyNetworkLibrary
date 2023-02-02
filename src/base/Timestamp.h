@@ -2,6 +2,10 @@
 #include <sys/time.h>
 #include <iostream>
 #include <string>
+
+/**
+ * 服务器所使用的基本时间戳类
+*/
 class Timestamp
 {
 public:
@@ -9,8 +13,11 @@ public:
     explicit Timestamp(int64_t microSecondsSinceEpoch);
     ~Timestamp();
 
+    //获取当前时间
     static Timestamp now();
+    //日历格式时间去除符号 如197001010800
     std::string toString(bool showMicroseconds = false) const;
+    //转换成日历格式时间
     std::string toFormattedString(bool showMicroseconds = false) const;
 
     int64_t getMicroSecondsSinceEpoch() const;
@@ -36,8 +43,6 @@ inline bool operator==(Timestamp lhs, Timestamp rhs)
 
 inline Timestamp addTime(Timestamp timestamp, double seconds)
 {
-    // 将延时的秒数转换为微妙
     int64_t delta = static_cast<int64_t>(seconds * Timestamp::kMicroSecondsPerSecond);
-    // 返回新增时后的时间戳
     return Timestamp(timestamp.getMicroSecondsSinceEpoch() + delta);
 }

@@ -12,11 +12,13 @@ class Acceptor;
 class Connection;
 class Socket;
 class ThreadPool;
-
+/**
+ * TcpServer 是一个可以支持多线程主从Reactor模式的服务器，通过注册回调函数实现业务逻辑
+*/
 class TcpServer
 {
 public:
-    explicit TcpServer(const char* ip, uint16_t port);
+    explicit TcpServer(const char* ip, const uint16_t &port);
     ~TcpServer();
 
     DISALLOW_COPY_AND_MOVE(TcpServer);

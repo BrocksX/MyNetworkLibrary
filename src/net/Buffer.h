@@ -1,7 +1,9 @@
 #pragma once
 #include <string>
 #include "nocopyable.h"
-
+/**
+ * Buffer实现缓冲区的功能，提供常用接口
+ */
 class Buffer
 {
 public:

@@ -4,11 +4,8 @@
 #include <vector>
 #include "ThreadPool.h"
 
-EventLoop::EventLoop() : poller_(nullptr), quit(false)
-{
-    poller_ = std::make_unique<Poller>();
-    timerQueue_ = std::make_unique<TimerQueue>(this);
-}
+EventLoop::EventLoop() : quit(false), poller_(std::make_unique<Poller>()), timerQueue_(std::make_unique<TimerQueue>(this)){}
+
 EventLoop::~EventLoop(){}
 
 void EventLoop::loop()

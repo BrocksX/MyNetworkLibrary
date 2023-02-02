@@ -15,8 +15,7 @@ public:
     Redis() = default;
     ~Redis() = default;
 
-    // 创建连接
-    bool connect(std::string ip, uint16_t port, std::string password = "");
+    bool connect(const std::string &ip, const uint16_t &port, const std::string &password = "");
     void disconnect();
 
     bool set(const std::string &key, const std::string &value);

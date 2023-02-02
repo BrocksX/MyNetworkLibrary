@@ -8,7 +8,10 @@
 class Socket;
 class Channel;
 class Acceptor;
-
+/**
+ * Acceptor运行在mainLoop中，负责接受连接
+ * TcpServer发现Acceptor有一个新连接，则将此channel分发给一个subLoop
+ */
 class Acceptor
 {
 public:

@@ -5,8 +5,7 @@
 #include "EventLoop.h"
 #include "Socket.h"
 
-Channel::Channel(EventLoop *loop, int fd)
-    : loop_(loop), fd_(fd), listenEvents_(0), readyEvents_(0), inEpoll_(false) {}
+Channel::Channel(EventLoop *loop, int fd) : loop_(loop), fd_(fd), listenEvents_(0), readyEvents_(0), inEpoll_(false) {}
 
 Channel::~Channel()
 {
@@ -43,13 +42,14 @@ void Channel::useET()
 int Channel::getFd() { return fd_; }
 
 uint32_t Channel::getListenEvents() { return listenEvents_; }
+
 uint32_t Channel::getReadyEvents() { return readyEvents_; }
 
 bool Channel::getInEpoll() { return inEpoll_; }
 
 void Channel::setInEpoll(bool in) { inEpoll_ = in; }
 
-void Channel::setReadyEvents(uint32_t ev) { readyEvents_ = ev; }
+void Channel::setReadyEvents(const uint32_t &ev) { readyEvents_ = ev; }
 
 void Channel::setReadCallback(std::function<void()> const &callback) { readCallback_ = callback; }
 

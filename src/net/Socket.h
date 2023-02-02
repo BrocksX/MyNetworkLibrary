@@ -4,9 +4,11 @@
 #include "InetAddress.h"
 
 class InetAddress;
+/**
+ * 封装socket fd
+*/
 class Socket
 {
-
 public:
     Socket();
     explicit Socket(int fd);
@@ -19,7 +21,7 @@ public:
     int accept(InetAddress *addr);
 
     void connect(InetAddress *addr);
-    void connect(const char *ip, uint16_t port);
+    void connect(const char *ip, const uint16_t &port);
 
     void setNonBlocking();
     bool isNonBlocking();

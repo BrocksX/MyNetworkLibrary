@@ -54,9 +54,10 @@ void Connection::write()
 void Connection::readNonBlocking()
 {
     int sockfd = socket_->getFd();
-    char buf[1024]; // 这个buf大小无所谓
+    char buf[1024];
     while (true)
-    { // 使用非阻塞IO，读取客户端buffer，一次读取buf大小数据，直到全部读取完毕
+    { 
+        //使用非阻塞IO，读取客户端buffer，一次读取buf大小数据，直到全部读取完毕
         memset(buf, 0, sizeof(buf));
         ssize_t bytes_read = ::read(sockfd, buf, sizeof(buf));
         if (bytes_read > 0)
@@ -64,16 +65,18 @@ void Connection::readNonBlocking()
             readBuffer_->append(buf, bytes_read);
         }
         else if (bytes_read == -1 && errno == EINTR)
-        { // 程序正常中断、继续读取
-            //printf("continue reading\n");
+        { 
+            //程序正常中断、继续读取
             continue;
         }
         else if (bytes_read == -1 && ((errno == EAGAIN) || (errno == EWOULDBLOCK)))
-        { // 非阻塞IO，这个条件表示数据全部读取完毕
+        { 
+            //非阻塞IO，这个条件表示数据全部读取完毕
             break;
         }
         else if (bytes_read == 0)
-        { // EOF，客户端断开连接
+        { 
+            // EOF，客户端断开连接
             printf("client fd %d disconnected\n", sockfd);
             state_ = State::Closed;
             break;
@@ -141,7 +144,7 @@ void Connection::readBlocking()
 
 void Connection::writeBlocking()
 {
-    // 没有处理send_buffer_数据大于TCP写缓冲区，的情况，可能会有bug
+    // 没有处理send_buffer_数据大于TCP写缓冲区的情况，可能会有bug
     int sockfd = socket_->getFd();
     ssize_t bytes_write = ::write(sockfd, sendBuffer_->c_str(), sendBuffer_->size());
     if (bytes_write == -1)
@@ -154,10 +157,15 @@ void Connection::writeBlocking()
 void Connection::close() { deleteConnectioinCallback_(socket_.get()); }
 
 Connection::State Connection::getState() { return state_; }
+
 void Connection::setSendBuffer(const char *str) { sendBuffer_->setBuf(str); }
+
 Buffer *Connection::getReadBuffer() { return readBuffer_.get(); }
+
 const char *Connection::readBuffer() { return readBuffer_->c_str(); }
+
 Buffer *Connection::getSendBuffer() { return sendBuffer_.get(); }
+
 const char *Connection::sendBuffer() { return sendBuffer_->c_str(); }
 
 void Connection::setDeleteConnectionCallback(std::function<void(Socket *)> const &callback)
@@ -167,15 +175,14 @@ void Connection::setDeleteConnectionCallback(std::function<void(Socket *)> const
 void Connection::setMessageCallback(std::function<void(Connection *)> const &callback)
 {
     messageCallback_ = callback;
-    channel_->setReadCallback([this]()
-                              { messageCallback_(this); });
+    channel_->setReadCallback([this](){ messageCallback_(this); });
 }
 
 void Connection::getlineSendBuffer() { sendBuffer_->getline(); }
 
 Socket *Connection::getSocket() { return socket_.get(); }
 
-void Connection::send(std::string msg)
+void Connection::send(const std::string &msg)
 {
     setSendBuffer(msg.c_str());
     write();

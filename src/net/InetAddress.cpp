@@ -1,6 +1,6 @@
 #include "InetAddress.h"
 
-InetAddress::InetAddress(const char *ip, uint16_t port)
+InetAddress::InetAddress(const char *ip, const uint16_t &port)
 {
     memset(&addr_, 0, sizeof(addr_));
     addr_.sin_family = AF_INET;
@@ -9,7 +9,7 @@ InetAddress::InetAddress(const char *ip, uint16_t port)
 }
 
 
-void InetAddress::setAddr(sockaddr_in addr) { addr_ = addr; }
+void InetAddress::setAddr(const sockaddr_in &addr) { addr_ = addr; }
 
 sockaddr_in InetAddress::getAddr() { return addr_; }
 

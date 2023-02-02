@@ -1,6 +1,6 @@
 #include "Redis.h"
 
-bool Redis::connect(std::string ip, uint16_t port, std::string password)
+bool Redis::connect(const std::string &ip, const uint16_t &port, const std::string &password)
 {
     if (connect_)
     {

@@ -8,7 +8,7 @@
 #include "ThreadPool.h"
 #include "util.h"
 
-TcpServer::TcpServer(const char* ip, uint16_t port)
+TcpServer::TcpServer(const char* ip, const uint16_t &port)
 {
     mainReactor_ = std::make_unique<EventLoop>();
     acceptor_ = std::make_unique<Acceptor>(mainReactor_.get(), ip, port);
@@ -49,6 +49,7 @@ void TcpServer::deleteConnection(Socket *sock)
 }
 
 void TcpServer::setMessageCallback(std::function<void(Connection *)> fn) { messageCallback_ = std::move(fn); }
+
 void TcpServer::setConnectionCallback(std::function<void(Connection *)> fn) { connectionCallback_ = std::move(fn); }
 
 void TcpServer::start()

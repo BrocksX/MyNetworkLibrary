@@ -4,12 +4,10 @@
 #include <cstdio>
 
 
-Acceptor::Acceptor(EventLoop *loop, const char* ip, const uint16_t &port)
+Acceptor::Acceptor(EventLoop *loop, const char* ip, const uint16_t &port) : socket_(std::make_unique<Socket>())
 {
-    socket_ = std::make_unique<Socket>();
     InetAddress *addr = new InetAddress(ip, port);
     socket_->bind(addr);
-    //socket_->setNonBlocking();
     socket_->listen();
     channel_ = std::make_unique<Channel>(loop, socket_->getFd());
     std::function<void()> cb = std::bind(&Acceptor::acceptConnection, this);
@@ -17,7 +15,9 @@ Acceptor::Acceptor(EventLoop *loop, const char* ip, const uint16_t &port)
     channel_->enableRead();
     delete addr;
 }
+
 Acceptor::~Acceptor() {}
+
 void Acceptor::acceptConnection() const
 {
     InetAddress *clnt_addr = new InetAddress();

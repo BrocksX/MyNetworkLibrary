@@ -1,21 +1,13 @@
 #pragma once
 #include <vector>
-#include <list>
+#include <queue>
 #include <mutex>
+#include <condition_variable>
 #include "Redis.h"
 #include "nocopyable.h"
 
 class RedisConnectPool
 {
-private:
-    int size_;
-    int usedCount_;
-    std::string ip_;
-    std::string password_;
-    uint16_t port_;
-    std::list<Redis *> connectPool_;
-    std::mutex mutex_;
-
 public:
     DISALLOW_COPY_AND_MOVE(RedisConnectPool);
     RedisConnectPool(const std::string ip, uint16_t port, int size, const std::string passwd = "");
@@ -24,7 +16,13 @@ public:
     bool connect();
     Redis* getConnect();
     void releaseConnect(Redis *conn);
-    //bool isUseful(Redis *conn);
-    int getFreeNum();
-    int getUsedCount();
+
+private:
+    int size_;
+    std::string ip_;
+    std::string password_;
+    uint16_t port_;
+    std::queue<Redis *> connectPool_;
+    std::mutex mutex_;
+    std::condition_variable cv_;
 };

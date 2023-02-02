@@ -22,15 +22,15 @@ int main()
       return;
     }
 
-    //Redis* red = redisConns->getConnect();
-    //red->setWithTimeout(clock->now().toString(true), conn->readBuffer());
-    //redisConns->releaseConnect(red);
-
+    Redis* red = redisConns->getConnect();
+    red->setWithTimeout(clock->now().toString(true), conn->readBuffer());
+    redisConns->releaseConnect(red);
+    
     std::cout<<conn->readBuffer()<<std::endl;
     conn->setSendBuffer(conn->readBuffer());
     conn->write(); });
-    server->start();
 
+    server->start();
     delete server;
     return 0;
 }

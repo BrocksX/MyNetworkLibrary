@@ -8,6 +8,10 @@ class EventLoop;
 class Socket;
 class Channel;
 class Buffer;
+/**
+ * Acceptor类的负责新建连接，Connection类负责处理事件的逻辑。
+ * 通过绑定回调函数实现业务逻辑
+*/
 class Connection
 {
 public:
@@ -23,9 +27,10 @@ public:
     ~Connection();
     DISALLOW_COPY_AND_MOVE(Connection);
 
+    //读写操作
     void read();
     void write();
-    void send(std::string msg);
+    void send(const std::string &msg);
 
     void setDeleteConnectionCallback(std::function<void(Socket *)> const &callback);
     void setMessageCallback(std::function<void(Connection *)> const &callback);

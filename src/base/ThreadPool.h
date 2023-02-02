@@ -16,8 +16,7 @@ public:
     ~ThreadPool();
 
     template <class F, class... Args>
-    auto add(F &&f, Args &&...args)
-        -> std::future<typename std::result_of<F(Args...)>::type>;
+    auto add(F &&f, Args &&...args) -> std::future<typename std::result_of<F(Args...)>::type>;
 
 private:
   std::vector<std::thread> threads_;
@@ -27,6 +26,7 @@ private:
   bool stop_;
 };
 
+//使用右值移动、完美转发阻止拷贝
 template <class F, class... Args>
 auto ThreadPool::add(F &&f, Args &&...args) -> std::future<typename std::result_of<F(Args...)>::type>
 {

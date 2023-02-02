@@ -11,8 +11,8 @@ target_link_libraries(echo_mul_clients myTinyServer)
 add_executable(chat_server chat_server.cpp)
 target_link_libraries(chat_server myTinyServer)
 
-add_executable(redis_test redis_test.cpp)
-target_link_libraries(redis_test myTinyServer)
+add_executable(TEST test.cpp)
+target_link_libraries(TEST myTinyServer)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/example)
 
