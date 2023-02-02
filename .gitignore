@@ -1,5 +1,4 @@
 build
-example/chat_server.cpp
-test/
+example
 todo-list.txt
-
+test/chat_server.cpp
