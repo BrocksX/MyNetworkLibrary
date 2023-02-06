@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 # 工程名称
-project(myTinyServer)
+project(myNetworkLibrary)
 
 # 添加搜索路径
 include_directories(
@@ -29,7 +29,7 @@ set(CXX_FLAGS
     )
 
 # 生成动态库 tiny_network
-add_library(myTinyServer SHARED 
+add_library(myNetworkLibrary SHARED 
             ${SRC_BASE}
             ${SRC_MYSQL}
             ${SRC_NET}
@@ -37,10 +37,17 @@ add_library(myTinyServer SHARED
             ${SRC_TIMER}
             )
 
-target_link_libraries(myTinyServer hiredis mysqlclient)
+target_link_libraries(myNetworkLibrary hiredis mysqlclient)
 
 
 # 设置生成动态库的路径，放在根目录的lib文件夹下面
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+
+# 设置安装的默认路径
+set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR})
+
+# 将目录安装到 include/tiny_network 下（只安装头文件）
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/src/ DESTINATION ${PROJECT_SOURCE_DIR}/include
+        FILES_MATCHING PATTERN "*.h")
      
 add_subdirectory(test)

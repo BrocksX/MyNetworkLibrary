@@ -1,18 +1,18 @@
 # 编译源码生成目标
 add_executable(echo_server echo_server.cpp)
-target_link_libraries(echo_server myTinyServer)
+target_link_libraries(echo_server myNetworkLibrary)
 
 add_executable(echo_client echo_client.cpp)
-target_link_libraries(echo_client myTinyServer)
+target_link_libraries(echo_client myNetworkLibrary)
 
 add_executable(echo_mul_clients echo_mul_clients.cpp)
-target_link_libraries(echo_mul_clients myTinyServer)
+target_link_libraries(echo_mul_clients myNetworkLibrary)
 
 add_executable(chat_server chat_server.cpp)
-target_link_libraries(chat_server myTinyServer)
+target_link_libraries(chat_server myNetworkLibrary)
 
 add_executable(TEST test.cpp)
-target_link_libraries(TEST myTinyServer)
+target_link_libraries(TEST myNetworkLibrary)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/example)
 

@@ -5,6 +5,7 @@
 #include "EventLoop.h"
 #include "Timestamp.h"
 #include "RedisConnectPool.h"
+#include "Timer.h"
 
 using namespace std;
 /*
@@ -27,11 +28,10 @@ int main()
 int main()
 {
     EventLoop *loop = new EventLoop();
-    printf("cnm\n");
-    cout<<"cnm"<<endl;
     Timestamp time;
     time = addTime(time.now(), 5);
-    loop->runAt(time, [](){cout<<"cnm"<<endl;});
+    Timer* t = loop->runAt(time, [](){cout<<"cnm"<<endl;});
+    loop->cancel(t);
     loop->loop();
     return 0;
 }

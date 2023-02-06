@@ -15,9 +15,7 @@ public:
     ~TimerQueue();
 
     // 插入定时器（回调函数，到期时间，是否重复）
-    Timer* addTimer(std::function<void()> cb, Timestamp when, double interval);
-    // 删除定时器
-    void cancel(Timer *timer);
+    void addTimer(std::function<void()> cb, Timestamp when, double interval);
     
 private:
     using Entry = std::pair<Timestamp, Timer*>; // 以时间戳作为键值获取定时器

@@ -2,3 +2,4 @@ build
 example
 todo-list.txt
 test/chat_server.cpp
+.vscode

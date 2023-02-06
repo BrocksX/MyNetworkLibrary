@@ -7,7 +7,6 @@
 #include <string.h>
 #include <util.h>
 
-
 TimerQueue::TimerQueue(EventLoop* loop) : loop_(loop), timerfdChannel_(loop_, timerfd_), timers_()
 {
     timerfd_ = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
@@ -18,23 +17,19 @@ TimerQueue::TimerQueue(EventLoop* loop) : loop_(loop), timerfdChannel_(loop_, ti
 
 TimerQueue::~TimerQueue()
 {   
-    //timerfdChannel_.disableAll();
-    //timerfdChannel_.remove();
-    
+
     ::close(timerfd_);
-    // 删除所有定时器
     for (const Entry& timer : timers_)
     {
         delete timer.second;
     }
 }
 
-void TimerQueue::addTimer(std::function<void()> cb, Timestamp when, double interval)
+Timer* TimerQueue::addTimer(std::function<void()> cb, Timestamp when, double interval)
 {
     Timer* timer = new Timer(std::move(cb), when, interval);
-    //fix it
     addTimerInLoop(timer);
-    //loop_->runInLoop(std::bind(&TimerQueue::addTimerInLoop, this, timer));
+    return timer;
 }
 
 void TimerQueue::addTimerInLoop(Timer* timer)
@@ -42,10 +37,19 @@ void TimerQueue::addTimerInLoop(Timer* timer)
     // 是否取代了最早的定时触发时间
     bool eraliestChanged = insert(timer);
 
-    // 我们需要重新设置timerfd_触发时间
     if (eraliestChanged)
     {
         resetTimerfd(timerfd_, timer->getExpiration());
+    }
+}
+
+void TimerQueue::cancel(Timer *timer)
+{
+    Entry t = {timer->getExpiration(), timer};
+    if(std::set<Entry>::iterator it = timers_.find(t); it != timers_.end())
+    {
+        timers_.erase(it);
+        delete it->second;
     }
 }
 
@@ -63,18 +67,12 @@ void TimerQueue::resetTimerfd(int timerfd_, Timestamp expiration)
     {
         microSecondDif = 100;
     }
-
     struct timespec ts;
-    ts.tv_sec = static_cast<time_t>(
-        microSecondDif / Timestamp::kMicroSecondsPerSecond);
-    ts.tv_nsec = static_cast<long>(
-        (microSecondDif % Timestamp::kMicroSecondsPerSecond) * 1000);
+    ts.tv_sec = static_cast<time_t>(microSecondDif / Timestamp::kMicroSecondsPerSecond);
+    ts.tv_nsec = static_cast<long>((microSecondDif % Timestamp::kMicroSecondsPerSecond) * 1000);
     newValue.it_value = ts;
     // 此函数会唤醒事件循环
-    if (::timerfd_settime(timerfd_, 0, &newValue, &oldValue))
-    {
-        //LOG_ERROR << "timerfd_settime faield()";
-    }
+    ::timerfd_settime(timerfd_, 0, &newValue, &oldValue);
 }
 
 void ReadTimerFd(int timerfd) 
@@ -87,13 +85,12 @@ void ReadTimerFd(int timerfd)
     }
 }
 
-// 返回删除的定时器节点 （std::vector<Entry> expired）
 std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
 {
     std::vector<Entry> expired;
     // TODO:???
     Entry sentry(now, reinterpret_cast<Timer*>(UINTPTR_MAX));
-    TimerList::iterator end = timers_.lower_bound(sentry);
+    std::set<Entry>::iterator end = timers_.lower_bound(sentry);
     std::copy(timers_.begin(), end, back_inserter(expired));
     timers_.erase(timers_.begin(), end);
     
@@ -114,8 +111,6 @@ void TimerQueue::handleRead()
         it.second->run();
     }
     callingExpiredTimers_ = false;
-    
-    // 重新设置这些定时器
     reset(expired, now);
 
 }
@@ -136,7 +131,6 @@ void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
         {
             delete it.second;
         }
-
         // 如果重新插入了定时器，需要继续重置timerfd
         if (!timers_.empty())
         {
@@ -149,14 +143,12 @@ bool TimerQueue::insert(Timer* timer)
 {
     bool earliestChanged = false;
     Timestamp when = timer->getExpiration();
-    TimerList::iterator it = timers_.begin();
+    std::set<Entry>::iterator it = timers_.begin();
     if (it == timers_.end() || when < it->first)
     {
         // 说明最早的定时器已经被替换了
         earliestChanged = true;
     }
-
-    // 定时器管理红黑树插入此新定时器
     timers_.insert(Entry(when, timer));
 
     return earliestChanged;
