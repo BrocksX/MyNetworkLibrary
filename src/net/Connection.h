@@ -1,5 +1,5 @@
 #pragma once
-#include "nocopyable.h"
+#include "noncopyable.h"
 #include <functional>
 #include <string>
 #include <memory>
@@ -31,6 +31,7 @@ public:
     void read();
     void write();
     void send(const std::string &msg);
+    void send(const Buffer &buffer);
 
     void setDeleteConnectionCallback(std::function<void(Socket *)> const &callback);
     void setMessageCallback(std::function<void(Connection *)> const &callback);

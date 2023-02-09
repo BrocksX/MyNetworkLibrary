@@ -5,7 +5,7 @@
 #include <vector>
 #include <string.h>
 #include <memory>
-#include "nocopyable.h"
+#include "noncopyable.h"
 #include <unordered_map>
 
 class Redis

@@ -2,7 +2,7 @@
 #include <functional>
 #include <memory>
 #include <vector>
-#include "nocopyable.h"
+#include "noncopyable.h"
 #include "Timestamp.h"
 #include "TimerQueue.h"
 #include "Timer.h"
@@ -27,9 +27,9 @@ public:
     void deleteChannel(Channel *) const;
 
     //定时器相关功能
-    Timer* runAt(Timestamp timestamp, std::function<void()>&& cb);
-    Timer* runAfter(double waitTime, std::function<void()>&& cb);
-    Timer* runEvery(double interval, std::function<void()>&& cb);
+    Timer* runAt(const Timestamp &timestamp, std::function<void()>&& cb);
+    Timer* runAfter(const double &waitTime, std::function<void()>&& cb);
+    Timer* runEvery(const double &interval, std::function<void()>&& cb);
     void cancel(Timer* timer);
 
 private:

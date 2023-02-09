@@ -1,7 +1,7 @@
 #pragma once
 #include <sys/epoll.h>
 #include <vector>
-#include "nocopyable.h"
+#include "noncopyable.h"
 
 class Channel;
 /**

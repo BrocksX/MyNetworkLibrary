@@ -8,7 +8,7 @@
 
 Poller::Poller() : epfd_(-1), events_(nullptr)
 {
-    epfd_ = epoll_create1(0);
+    epfd_ = epoll_create1(EPOLL_CLOEXEC);
     errif(epfd_ == -1, "epoll create error");
     events_ = new epoll_event[MAX_EVENTS];
     bzero(events_, sizeof(*events_) * MAX_EVENTS);

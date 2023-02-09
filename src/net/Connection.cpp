@@ -187,3 +187,9 @@ void Connection::send(const std::string &msg)
     setSendBuffer(msg.c_str());
     write();
 }
+
+void Connection::send(const Buffer &buffer)
+{
+    setSendBuffer(buffer.c_str());
+    write();
+}

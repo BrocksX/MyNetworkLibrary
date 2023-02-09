@@ -3,7 +3,8 @@
 #include <iostream>
 #include <mysql/mysql.h>
 #include <chrono>
-#include "nocopyable.h"
+#include "noncopyable.h"
+
 using std::chrono::steady_clock;
 
 class Mysql

@@ -6,7 +6,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <future>
-#include "nocopyable.h"
+#include "noncopyable.h"
 
 class ThreadPool
 {
@@ -23,7 +23,7 @@ private:
   std::queue<std::function<void()>> tasks_;
   std::mutex queue_mtx_;
   std::condition_variable cv_;
-  bool stop_;
+  std::atomic<bool> stop_{false};
 };
 
 //使用右值移动、完美转发阻止拷贝

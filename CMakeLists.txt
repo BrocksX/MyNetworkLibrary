@@ -7,6 +7,7 @@ project(myNetworkLibrary)
 # 添加搜索路径
 include_directories(
     ${PROJECT_SOURCE_DIR}/src/base
+    ${PROJECT_SOURCE_DIR}/src/http
     ${PROJECT_SOURCE_DIR}/src/mysql
     ${PROJECT_SOURCE_DIR}/src/net
     ${PROJECT_SOURCE_DIR}/src/redis
@@ -16,6 +17,7 @@ include_directories(
 
 # 包含这些目录下的.cpp文件
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/base SRC_BASE)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src/http SRC_HTTP)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/mysql SRC_MYSQL)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/net SRC_NET)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/redis SRC_REDIS)
@@ -31,6 +33,7 @@ set(CXX_FLAGS
 # 生成动态库 tiny_network
 add_library(myNetworkLibrary SHARED 
             ${SRC_BASE}
+            ${SRC_HTTP}
             ${SRC_MYSQL}
             ${SRC_NET}
             ${SRC_REDIS}
@@ -46,8 +49,9 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 # 设置安装的默认路径
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR})
 
-# 将目录安装到 include/tiny_network 下（只安装头文件）
+# 将目录安装到 include下（只安装头文件）
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/src/ DESTINATION ${PROJECT_SOURCE_DIR}/include
         FILES_MATCHING PATTERN "*.h")
      
 add_subdirectory(test)
+add_subdirectory(example)

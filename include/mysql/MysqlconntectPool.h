@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Mysql.h"
-#include "nocopyable.h"
+#include "noncopyable.h"
 #include <memory>
 #include <queue>
 #include <mutex>

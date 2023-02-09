@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
-#include "nocopyable.h"
+#include "noncopyable.h"
+
 /**
  * Buffer实现缓冲区的功能，提供常用接口
  */
@@ -12,6 +13,7 @@ public:
     ~Buffer() = default;
 
     void append(const char* str, const int &size);
+    void append(const std::string &str);
     ssize_t size() const;
     const char* c_str() const;
     void clear();

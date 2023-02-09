@@ -29,18 +29,18 @@ void EventLoop::deleteChannel(Channel *ch) const
     poller_->deleteChannel(ch);
 }
 
-Timer* EventLoop::runAt(Timestamp timestamp, std::function<void()>&& cb)
+Timer* EventLoop::runAt(const Timestamp &timestamp, std::function<void()>&& cb)
 {
     return timerQueue_->addTimer(std::move(cb), timestamp, 0.0);
 }
 
-Timer* EventLoop::runAfter(double waitTime, std::function<void()>&& cb)
+Timer* EventLoop::runAfter(const double &waitTime, std::function<void()>&& cb)
 {
     Timestamp time(addTime(Timestamp::now(), waitTime)); 
     return runAt(time, std::move(cb));
 }
 
-Timer* EventLoop::runEvery(double interval, std::function<void()>&& cb)
+Timer* EventLoop::runEvery(const double &interval, std::function<void()>&& cb)
 {
     Timestamp timestamp(addTime(Timestamp::now(), interval)); 
     return timerQueue_->addTimer(std::move(cb), timestamp, interval);

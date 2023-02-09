@@ -1,5 +1,4 @@
 build
-example
+example/chat_server.cpp
 todo-list.txt
-test/chat_server.cpp
 .vscode

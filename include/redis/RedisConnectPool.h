@@ -4,7 +4,7 @@
 #include <mutex>
 #include <condition_variable>
 #include "Redis.h"
-#include "nocopyable.h"
+#include "noncopyable.h"
 
 class RedisConnectPool
 {
