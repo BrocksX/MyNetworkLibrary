@@ -1,7 +1,7 @@
 #include "Timer.h"
 
 Timer::Timer(std::function<void()> cb, Timestamp time, double  interval)
-: callback_(std::move(cb)), expiration_(time), interval_(interval), repeat_(interval > 0.0), canceled_(false){}
+: callback_(std::move(cb)), expiration_(time), interval_(interval), repeat_(interval > 0.0), valid_(false){}
 
 void Timer::run() const
 {

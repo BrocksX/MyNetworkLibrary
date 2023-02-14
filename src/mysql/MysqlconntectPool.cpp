@@ -56,10 +56,7 @@ std::shared_ptr<Mysql> MysqlConnectionPool::getConnection()
         }
     }
     
-    // 有可用的连接
-    // 如何还回数据库连接？
     // 使用共享智能指针并规定其删除器
-    // 规定销毁后调用删除器，在互斥的情况下更新空闲时间并加入数据库连接池
     std::shared_ptr<Mysql> connptr(connectPool_.front(), 
         [this](Mysql* conn) {
             std::lock_guard<std::mutex> locker(mutex_);

@@ -4,6 +4,7 @@
 #include "noncopyable.h"
 #include <vector>
 #include <set>
+#include <memory>
 #include "Timer.h"
 class Timer;
 
@@ -15,12 +16,12 @@ public:
     ~TimerQueue();
 
     // 插入定时器（回调函数，到期时间，是否重复）
-    Timer* addTimer(std::function<void()> cb, const Timestamp &when, const double &interval);
+    std::shared_ptr<Timer> addTimer(std::function<void()> cb, const Timestamp &when, const double &interval);
     // 删除定时器
-    void cancel(Timer *timer);
+    void cancel(std::shared_ptr<Timer> timer);
     
 private:
-    using Entry = std::pair<Timestamp, Timer*>; // 以时间戳作为键值获取定时器
+    using Entry = std::pair<Timestamp, std::shared_ptr<Timer>>; // 以时间戳作为键值获取定时器
 
     // 定时器读事件触发的函数
     void handleRead();
@@ -35,7 +36,7 @@ private:
     void reset(const std::vector<Entry>& expired, Timestamp now);
 
     // 插入定时器的内部方法
-    bool insert(Timer* timer);
+    bool insert(std::shared_ptr<Timer> timer);
 
     EventLoop* loop_; 
     int timerfd_;

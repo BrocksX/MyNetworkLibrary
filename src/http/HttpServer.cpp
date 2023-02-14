@@ -11,13 +11,12 @@
  */
 void defaultHttpCallback(const HttpRequest&, HttpResponse* resp)
 {
-    resp->setStatusCode(HttpResponse::k200Ok);
-    resp->setStatusMessage("OK");
+    resp->setStatusCode(HttpResponse::k404NotFound);
+    resp->setStatusMessage("Not Found");
     resp->setCloseConnection(true);
-    resp->setBody("Hello world");
 }
 
-HttpServer::HttpServer(const char* ip, const uint16_t &port) : server_(ip, port), httpCallback_(defaultHttpCallback)
+HttpServer::HttpServer(EventLoop *loop, const char* ip, const uint16_t &port) : server_(loop, ip, port), httpCallback_(defaultHttpCallback)
 {
     server_.setMessageCallback(std::bind(&HttpServer::onMessage, this, std::placeholders::_1));
 }

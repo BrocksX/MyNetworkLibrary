@@ -2,15 +2,15 @@
 
 bool Redis::connect(const std::string &ip, const uint16_t &port, const std::string &password)
 {
-    if (connect_)
+    if (context_)
     {
-        redisFree(connect_.get());
+        redisFree(context_.get());
     }
-    connect_ = std::unique_ptr<redisContext>(redisConnect(ip.c_str(), port));
+    context_ = std::unique_ptr<redisContext>(redisConnect(ip.c_str(), port));
     if (!password.empty())
     {
         std::string cmd = "AUTH " + password;
-        redisReply *reply = (redisReply *)::redisCommand(connect_.get(), cmd.c_str());
+        redisReply *reply = (redisReply *)::redisCommand(context_.get(), cmd.c_str());
         if (reply == NULL)
         {
             return false;
@@ -21,9 +21,9 @@ bool Redis::connect(const std::string &ip, const uint16_t &port, const std::stri
             return false;
         }
     }
-    if (connect_ && connect_->err)
+    if (context_ && context_->err)
     {
-        printf("connect error: %s\n", connect_->errstr);
+        printf("connect error: %s\n", context_->errstr);
         return false;
     }
     return true;
@@ -31,16 +31,15 @@ bool Redis::connect(const std::string &ip, const uint16_t &port, const std::stri
 
 void Redis::disconnect()
 {
-    if (connect_.get())
+    if (context_.get())
     {
-        redisFree(connect_.get());
+        redisFree(context_.get());
     }
 }
 
 std::string Redis::get(std::string key)
 {
-    redisReply *reply_ = (redisReply *)redisCommand(connect_.get(), "GET %s", key.c_str());
-    printf("%d", reply_->type);
+    redisReply *reply_ = (redisReply *)redisCommand(context_.get(), "GET %s", key.c_str());
     std::string str = reply_->str;
     freeReplyObject(reply_);
     return str;
@@ -106,16 +105,29 @@ int64_t Redis::hset(const std::string &key, const std::unordered_map<std::string
         return -1;
 }
 
-bool Redis::hget(const std::string &key, const std::string &fields, std::string &values)
+bool Redis::hget(const std::string &key, const std::string &field, std::string &value)
 {
-    if (key.empty() || fields.empty())
+    if (key.empty() || field.empty())
         return false;
-    values.clear();
     std::vector<std::string> args;
     args.push_back("HGET");
     args.push_back(key);
-    args.push_back(fields);
-    return execReplyString(args, values);
+    args.push_back(field);
+    return execReplyString(args, value);
+}
+
+bool Redis::hmget(const std::string &key, const std::vector<std::string> &fields, std::vector<std::string> &values)
+{
+    if (key.empty() || fields.empty())
+        return false;
+    std::vector<std::string> args;
+    args.push_back("HMGET");
+    args.push_back(key);
+    for(const auto &f : fields)
+    {
+        args.push_back(f);
+    }
+    return execReplyArray(args, values);
 }
 
 bool Redis::hexists(const std::string &key, const std::string &field)
@@ -134,31 +146,44 @@ bool Redis::hexists(const std::string &key, const std::string &field)
         return false;
 }
 
-void Redis::zadd(std::string key, std::string score, std::string member)
+int64_t Redis::zadd(std::string key, const std::unordered_map<int64_t, std::string> &score_vals)
 {
-    redisCommand(connect_.get(), "ZADD %s %s %s", key.c_str(), score.c_str(), member.c_str());
+    if (key.empty() || score_vals.empty())
+        return false;
+    std::vector<std::string> args;
+    args.push_back("ZADD");
+    args.push_back(key);
+    for(auto const c : score_vals)
+    {
+        args.push_back(std::to_string(c.first));
+        args.push_back(c.second);
+    }
+    int64_t value = 0;
+    execReplyInt(args, value);
+    return value;
 }
 
 bool Redis::zrange(const std::string &key, int64_t start, int64_t stop, std::vector<std::string> &values, bool withScores)
 {
-    std::string cmd = "ZRANGE " + key + " " + std::to_string(start) + " " + std::to_string(stop) + (withScores ? " WITHSCORES" : "");
-    values.clear();
-    if (execReplyArray(cmd, values))
-    {
-        return true;
-    }
-    return false;
+    if (key.empty() || start > stop)
+        return false;
+    std::vector<std::string> args;
+    args.push_back("ZRANGE");
+    args.push_back(key);
+    args.push_back(std::to_string(start));
+    args.push_back(std::to_string(stop));
+    if(withScores) args.push_back("WITHSCORES");
+
+    return execReplyArray(args, values);
 }
 
 bool Redis::execReplyString(const std::vector<std::string> &args, std::string &ret)
 {
-    if (!connect_)
+    if (!context_)
         return false;
     ret.clear();
     if (args.empty())
-    {
         return true;
-    }
     std::vector<const char *> argv(args.size());
     std::vector<size_t> argvlen(args.size());
     int64_t j = 0;
@@ -168,7 +193,7 @@ bool Redis::execReplyString(const std::vector<std::string> &args, std::string &r
         argvlen[j] = i.length();
         j++;
     }
-    redisReply *reply = (redisReply *)redisCommandArgv(connect_.get(), argv.size(), &(argv[0]), &(argvlen[0]));
+    redisReply *reply = (redisReply *)redisCommandArgv(context_.get(), argv.size(), &(argv[0]), &(argvlen[0]));
     if (reply)
     {
         if (reply->type == REDIS_REPLY_STRING)
@@ -186,13 +211,25 @@ bool Redis::execReplyString(const std::vector<std::string> &args, std::string &r
     return false;
 }
 
-bool Redis::execReplyArray(const std::string &cmd, std::vector<std::string> &ret)
+bool Redis::execReplyArray(const std::vector<std::string> &args, std::vector<std::string> &ret)
 {
-    if (!connect_)
-    {
+    if (!context_)
         return false;
+    ret.clear();
+    if (args.empty())
+    {
+        return true;
     }
-    redisReply *reply = (redisReply *)::redisCommand(connect_.get(), cmd.c_str());
+    std::vector<const char *> argv(args.size());
+    std::vector<size_t> argvlen(args.size());
+    int64_t j = 0;
+    for (const auto &i : args)
+    {
+        argv[j] = i.c_str();
+        argvlen[j] = i.length();
+        j++;
+    }
+    redisReply *reply = (redisReply *)redisCommandArgv(context_.get(), argv.size(), &(argv[0]), &(argvlen[0]));
     if (reply != NULL)
     {
         if (reply->type == REDIS_REPLY_ARRAY)
@@ -214,7 +251,7 @@ bool Redis::execReplyArray(const std::string &cmd, std::vector<std::string> &ret
 
 bool Redis::execReplyInt(const std::vector<std::string> &args, int64_t &ret)
 {
-    if (!connect_)
+    if (!context_)
         return false;
     if (args.empty())
     {
@@ -230,7 +267,7 @@ bool Redis::execReplyInt(const std::vector<std::string> &args, int64_t &ret)
         argvlen[j] = i.length();
         j++;
     }
-    redisReply *reply = (redisReply *)redisCommandArgv(connect_.get(), argv.size(), &(argv[0]), &(argvlen[0]));
+    redisReply *reply = (redisReply *)redisCommandArgv(context_.get(), argv.size(), &(argv[0]), &(argvlen[0]));
     if (reply)
     {
         if (reply->type == REDIS_REPLY_INTEGER)
@@ -250,11 +287,10 @@ bool Redis::execReplyInt(const std::vector<std::string> &args, int64_t &ret)
 
 bool Redis::execReplyStatus(const std::vector<std::string> &args, std::string &ret)
 {
-    if (!connect_)
+    if (!context_)
         return false;
     if (args.empty())
         return true;
-
     std::vector<const char *> argv(args.size());
     std::vector<size_t> argvlen(args.size());
     int64_t j = 0;
@@ -264,7 +300,7 @@ bool Redis::execReplyStatus(const std::vector<std::string> &args, std::string &r
         argvlen[j] = i.length();
         j++;
     }
-    redisReply *reply = (redisReply *)redisCommandArgv(connect_.get(), argv.size(), &(argv[0]), &(argvlen[0]));
+    redisReply *reply = (redisReply *)redisCommandArgv(context_.get(), argv.size(), &(argv[0]), &(argvlen[0]));
     if (reply)
     {
         if(reply->type == REDIS_REPLY_STATUS)

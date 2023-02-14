@@ -5,14 +5,15 @@
 #include "Socket.h"
 #include "RedisConnectPool.h"
 #include "Timestamp.h"
+#include "EventLoop.h"
 
 int main()
 {
-    RedisConnectPool *redisConns = new RedisConnectPool("127.0.0.1", 6379, 20);
-    redisConns->connect();
+    RedisConnectPool* redisConns = RedisConnectPool::getConnectionPool("127.0.0.1", 6379, 20);
     Timestamp *clock = new Timestamp();
+    EventLoop *loop = new EventLoop();
 
-    TcpServer *server = new TcpServer("0.0.0.0", 8888);
+    TcpServer *server = new TcpServer(loop, "0.0.0.0", 8888);
 
     server->setMessageCallback([&redisConns, &clock](Connection *conn)
                               {

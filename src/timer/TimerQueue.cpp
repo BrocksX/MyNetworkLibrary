@@ -18,17 +18,12 @@ TimerQueue::TimerQueue(EventLoop* loop) : loop_(loop)
 
 TimerQueue::~TimerQueue()
 {   
-
     ::close(timerfd_);
-    for (const Entry& timer : timers_)
-    {
-        delete timer.second;
-    }
 }
 
-Timer* TimerQueue::addTimer(std::function<void()> cb, const Timestamp &when, const double &interval)
+std::shared_ptr<Timer> TimerQueue::addTimer(std::function<void()> cb, const Timestamp &when, const double &interval)
 {
-    Timer* timer = new Timer(std::move(cb), when, interval);
+    std::shared_ptr<Timer> timer = std::make_shared<Timer>(std::move(cb), when, interval);
     bool eraliestChanged = insert(timer);
 
     if (eraliestChanged)
@@ -38,10 +33,9 @@ Timer* TimerQueue::addTimer(std::function<void()> cb, const Timestamp &when, con
     return timer;
 }
 
-void TimerQueue::cancel(Timer *timer)
+void TimerQueue::cancel(std::shared_ptr<Timer>timer)
 {
-    if(timer)
-        timer->setCanceled();
+    timer->disable();
 }
 
 // 重置timerfd
@@ -73,8 +67,7 @@ void ReadTimerFd(int timerfd)
 std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
 {
     std::vector<Entry> expired;
-    // TODO:???
-    Entry sentry(now, reinterpret_cast<Timer*>(UINTPTR_MAX));
+    Entry sentry(now, std::make_shared<Timer>([](){}, now, 0));
     std::set<Entry>::iterator end = timers_.lower_bound(sentry);
     std::copy(timers_.begin(), end, back_inserter(expired));
     timers_.erase(timers_.begin(), end);
@@ -92,11 +85,10 @@ void TimerQueue::handleRead()
     // 遍历到期的定时器，调用回调函数
     for (const Entry& it : expired)
     {
-        if(!it.second->isCanceled())
+        if(!it.second->isValid())
             it.second->run();
     }
     reset(expired, now);
-
 }
 
 void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
@@ -104,15 +96,11 @@ void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
     for (const Entry& it : expired)
     {
         // 重复任务则继续执行
-        if (it.second->isRepeat() && !it.second->isCanceled())
+        if (it.second->isRepeat() && !it.second->isValid())
         {
             auto timer = it.second;
             timer->restart(Timestamp::now());
             insert(timer);
-        }
-        else
-        {
-            delete it.second;
         }
     }
     if (!timers_.empty())
@@ -121,7 +109,7 @@ void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
     }
 }
 
-bool TimerQueue::insert(Timer* timer)
+bool TimerQueue::insert(std::shared_ptr<Timer> timer)
 {
     bool earliestChanged = false;
     Timestamp when = timer->getExpiration();

@@ -10,7 +10,7 @@ private:
     Timestamp expiration_;
     double interval_;
     bool repeat_;
-    bool canceled_;
+    bool valid_;
 
 public:
     Timer(std::function<void()> cb, Timestamp time, double interval);
@@ -20,14 +20,14 @@ public:
     Timestamp getExpiration() const;
     bool isRepeat() const;
     void restart(Timestamp now);
-    void setCanceled()
+    void disable()
     {
-        canceled_ = true;
+        valid_ = true;
     }
 
-    bool isCanceled()
+    bool isValid()
     {
-        return canceled_;
+        return valid_;
     }
 };
 

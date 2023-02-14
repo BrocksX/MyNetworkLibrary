@@ -10,3 +10,9 @@ void errif(bool err, const char* errmsg)
         exit(EXIT_FAILURE);
     }
 }
+
+void throwerror(const char* errmsg)
+{
+    perror(errmsg);
+    exit(EXIT_FAILURE);
+}

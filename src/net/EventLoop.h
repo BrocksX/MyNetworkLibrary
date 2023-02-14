@@ -27,10 +27,10 @@ public:
     void deleteChannel(Channel *) const;
 
     //定时器相关功能
-    Timer* runAt(const Timestamp &timestamp, std::function<void()>&& cb);
-    Timer* runAfter(const double &waitTime, std::function<void()>&& cb);
-    Timer* runEvery(const double &interval, std::function<void()>&& cb);
-    void cancel(Timer* timer);
+    std::shared_ptr<Timer> runAt(const Timestamp &timestamp, std::function<void()>&& cb);
+    std::shared_ptr<Timer> runAfter(const double &waitTime, std::function<void()>&& cb);
+    std::shared_ptr<Timer> runEvery(const double &interval, std::function<void()>&& cb);
+    void cancel(std::shared_ptr<Timer> timer);
 
 private:
     std::unique_ptr<Poller> poller_;

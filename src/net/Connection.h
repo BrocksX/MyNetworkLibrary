@@ -15,6 +15,8 @@ class Buffer;
 class Connection
 {
 public:
+    DISALLOW_COPY_AND_MOVE(Connection);
+
     enum State
     {
         Invalid = 1,
@@ -25,8 +27,6 @@ public:
     };
     Connection(EventLoop *loop, Socket *socket);
     ~Connection();
-    DISALLOW_COPY_AND_MOVE(Connection);
-
     //读写操作
     void read();
     void write();

@@ -8,9 +8,9 @@
 #include "ThreadPool.h"
 #include "util.h"
 
-TcpServer::TcpServer(const char* ip, const uint16_t &port)
+TcpServer::TcpServer(EventLoop *loop, const char* ip, const uint16_t &port)
 {
-    mainReactor_ = std::make_unique<EventLoop>();
+    mainReactor_ = std::unique_ptr<EventLoop>(loop);
     acceptor_ = std::make_unique<Acceptor>(mainReactor_.get(), ip, port);
 
     std::function<void(Socket *)> cb = std::bind(&TcpServer::newConnection, this, std::placeholders::_1);

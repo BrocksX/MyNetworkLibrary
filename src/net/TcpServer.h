@@ -18,7 +18,7 @@ class ThreadPool;
 class TcpServer
 {
 public:
-    explicit TcpServer(const char* ip, const uint16_t &port);
+    explicit TcpServer(EventLoop *loop, const char* ip, const uint16_t &port);
     ~TcpServer();
 
     DISALLOW_COPY_AND_MOVE(TcpServer);

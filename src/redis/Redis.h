@@ -27,13 +27,13 @@ public:
     bool hmget(const std::string &key, const std::vector<std::string> &fields, std::vector<std::string> &values);
     bool hexists(const std::string &key, const std::string &field);
 
-    void zadd(std::string key, std::string score, std::string member);
+    int64_t zadd(std::string key, const std::unordered_map<int64_t, std::string> &score_vals);
     bool zrange(const std::string &key, int64_t start, int64_t stop, std::vector<std::string> &values, bool withScores);
 
 private:
-    std::unique_ptr<redisContext> connect_;
+    std::unique_ptr<redisContext> context_;
     bool execReplyString(const std::vector<std::string> &args, std::string &ret);
-    bool execReplyArray(const std::string &cmd, std::vector<std::string> &ret);
+    bool execReplyArray(const std::vector<std::string> &args, std::vector<std::string> &ret);
     bool execReplyInt(const std::vector<std::string> &args, int64_t &ret);
     bool execReplyStatus(const std::vector<std::string> &args, std::string &ret);
 };
