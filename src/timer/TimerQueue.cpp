@@ -38,13 +38,11 @@ void TimerQueue::cancel(std::shared_ptr<Timer>timer)
     timer->disable();
 }
 
-// 重置timerfd
 void TimerQueue::resetTimerfd(int timerfd_, Timestamp expiration)
 {
     itimerspec newValue;
     memset(&newValue, '\0', sizeof(newValue));
 
-    // 超时时间 - 现在时间
     int64_t microSecondDif = expiration.getMicroSecondsSinceEpoch() - Timestamp::now().getMicroSecondsSinceEpoch();
     if (microSecondDif < 100)
     {
@@ -54,7 +52,7 @@ void TimerQueue::resetTimerfd(int timerfd_, Timestamp expiration)
     ts.tv_sec = static_cast<time_t>(microSecondDif / Timestamp::kMicroSecondsPerSecond);
     ts.tv_nsec = static_cast<long>((microSecondDif % Timestamp::kMicroSecondsPerSecond) * 1000);
     newValue.it_value = ts;
-    // 此函数会唤醒事件循环
+    // 唤醒事件循环
     ::timerfd_settime(timerfd_, 0, &newValue, 0);
 }
 
@@ -67,10 +65,11 @@ void ReadTimerFd(int timerfd)
 std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
 {
     std::vector<Entry> expired;
-    Entry sentry(now, std::make_shared<Timer>([](){}, now, 0));
-    std::set<Entry>::iterator end = timers_.lower_bound(sentry);
-    std::copy(timers_.begin(), end, back_inserter(expired));
-    timers_.erase(timers_.begin(), end);
+    while(!timers_.empty() && timers_.top().first < now)
+    {
+        expired.emplace_back(timers_.top());
+        timers_.pop();
+    }
     
     return expired;
 }
@@ -79,10 +78,8 @@ void TimerQueue::handleRead()
 {
     Timestamp now = Timestamp::now();
     ReadTimerFd(timerfd_);
-
     std::vector<Entry> expired = getExpired(now);
 
-    // 遍历到期的定时器，调用回调函数
     for (const Entry& it : expired)
     {
         if(!it.second->isValid())
@@ -95,17 +92,17 @@ void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
 {
     for (const Entry& it : expired)
     {
-        // 重复任务则继续执行
+        // 重复任务且任务未取消则继续执行
         if (it.second->isRepeat() && !it.second->isValid())
         {
             auto timer = it.second;
             timer->restart(Timestamp::now());
-            insert(timer);
+            timers_.push(Entry(timer->getExpiration(), timer));
         }
     }
     if (!timers_.empty())
     {
-        resetTimerfd(timerfd_, (timers_.begin()->second)->getExpiration());
+        resetTimerfd(timerfd_, (timers_.top().second)->getExpiration());
     }
 }
 
@@ -113,14 +110,9 @@ bool TimerQueue::insert(std::shared_ptr<Timer> timer)
 {
     bool earliestChanged = false;
     Timestamp when = timer->getExpiration();
-    std::set<Entry>::iterator it = timers_.begin();
-    if (it == timers_.end() || when < it->first)
-    {
-        // 说明最早的定时器已经被替换了
+    if(timers_.empty() || when < timers_.top().first)
         earliestChanged = true;
-    }
-    timers_.insert(Entry(when, timer));
-
+    timers_.push(Entry(when, timer));
     return earliestChanged;
 }
 

@@ -6,10 +6,9 @@
 #include "Timestamp.h"
 #include "RedisConnectPool.h"
 #include "Timer.h"
-
+EventLoop *g_loop;
 using namespace std;
 
-EventLoop *g_loop;
 void cancel(std::shared_ptr<Timer> timer)
 {
     g_loop->cancel(timer);
@@ -17,7 +16,7 @@ void cancel(std::shared_ptr<Timer> timer)
 int main()
 {
     int g = 0;
-    int N = 2000000;
+    int N = 3500000;
     EventLoop loop;
     g_loop = &loop;
     for(int i = 0; i < N; ++i)
@@ -34,7 +33,6 @@ int main()
     return 0;
 }
 
-// EventLoop* g_loop;
 // void print(const char* msg)
 // {
 //   printf("msg %s %s\n", Timestamp::now().toString().c_str(), msg);
