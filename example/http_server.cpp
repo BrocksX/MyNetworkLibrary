@@ -32,7 +32,7 @@ void onRequest(const HttpRequest& req, HttpResponse* resp)
 
 }
 
-int main(int argc, char* argv[])
+int main()
 {
     EventLoop loop;
     HttpServer server(&loop, "0.0.0.0", 8888);

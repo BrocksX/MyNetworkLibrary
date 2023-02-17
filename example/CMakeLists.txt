@@ -1,5 +1,3 @@
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/example)
-
 # 编译源码生成目标
 add_executable(echo_server echo_server.cpp)
 target_link_libraries(echo_server myNetworkLibrary)

@@ -1,5 +1,4 @@
 #include "TcpServer.h"
-#include <iostream>
 #include "Buffer.h"
 #include "Connection.h"
 #include "Socket.h"
@@ -20,9 +19,10 @@ int main()
       return;
     }
 
-    std::cout<<conn->readBuffer()<<std::endl;
+    printf("%s\n", conn->readBuffer());
     conn->setSendBuffer(conn->readBuffer());
-    conn->write(); });
+    conn->write(); 
+    });
 
     server->start();
     delete server;

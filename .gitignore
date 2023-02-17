@@ -1,4 +1,3 @@
 build
-example/chat_server.cpp
-todo-list.txt
+example/echo_mul_clients.cpp
 .vscode
