@@ -5,16 +5,16 @@
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
-#include "util.h"
+#include <stdexcept>
 
 Socket::Socket()
 {
     fd_ = socket(AF_INET, SOCK_STREAM, 0);
-    errif(fd_ == -1, "socket create error");
+    if(fd_ == -1)   throw std::runtime_error("socket create error");
 }
 Socket::Socket(int fd) : fd_(fd) 
 { 
-    errif(fd_ == -1, "socket create error"); 
+    if(fd_ == -1)   throw std::runtime_error("socket create error");
 }
 
 Socket::~Socket()
@@ -28,10 +28,15 @@ Socket::~Socket()
 void Socket::bind(InetAddress *addr)
 {
     struct sockaddr_in tmp_addr = addr->getAddr();
-    errif(::bind(fd_, (sockaddr *)&tmp_addr, sizeof(tmp_addr)) == -1, "socket bind error");
+    if(::bind(fd_, (sockaddr *)&tmp_addr, sizeof(tmp_addr)) == -1)
+        throw std::runtime_error("socket bind error");
 }
 
-void Socket::listen() { errif(::listen(fd_, SOMAXCONN) == -1, "socket listen error"); }
+void Socket::listen() 
+{ 
+    if(::listen(fd_, SOMAXCONN) == -1)
+        throw std::runtime_error("socket listen error");
+}
 
 void Socket::setNonBlocking() { fcntl(fd_, F_SETFL, fcntl(fd_, F_GETFL) | O_NONBLOCK); }
 
@@ -53,7 +58,7 @@ int Socket::accept(InetAddress *addr)
             }
             if (clnt_sockfd == -1)
             {
-                errif(true, "socket accept error");
+                throw std::runtime_error("socket accept error");
             }
             else
             {
@@ -64,7 +69,8 @@ int Socket::accept(InetAddress *addr)
     else
     {
         clnt_sockfd = ::accept(fd_, (sockaddr *)&tmp_addr, &addr_len);
-        errif(clnt_sockfd == -1, "socket accept error");
+        if(clnt_sockfd == -1)
+            throw std::runtime_error("socket accept error");
     }
     addr->setAddr(tmp_addr);
     return clnt_sockfd;
@@ -88,13 +94,14 @@ void Socket::connect(InetAddress *addr)
             }
             if (ret == -1)
             {
-                errif(true, "socket connect error");
+                throw std::runtime_error("socket connect error");
             }
         }
     }
     else
     {
-        errif(::connect(fd_, (sockaddr *)&tmp_addr, sizeof(tmp_addr)) == -1, "socket connect error");
+        if(::connect(fd_, (sockaddr *)&tmp_addr, sizeof(tmp_addr)) == -1)
+            throw std::runtime_error("socket connect error");
     }
 }
 

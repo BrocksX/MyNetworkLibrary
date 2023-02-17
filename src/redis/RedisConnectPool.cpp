@@ -9,6 +9,7 @@ RedisConnectPool* RedisConnectPool::getConnectionPool(const std::string ip, uint
 
 RedisConnectPool::RedisConnectPool(const std::string ip, uint16_t port, int size, const std::string passwd) : ip_(ip), port_(port), password_(passwd), size_(size)
 {
+    std::unique_lock<std::mutex> locker(mutex_);
     for (int i = 0; i < size_; ++i)
     {
         Redis *conn = new Redis();
@@ -17,7 +18,7 @@ RedisConnectPool::RedisConnectPool(const std::string ip, uint16_t port, int size
             connectPool_.push(conn);
         }
         else
-            throwerror("Redis Connetion create error");
+            throw std::runtime_error("Redis Connetion create error");
     }
 }
 
@@ -32,14 +33,14 @@ RedisConnectPool::~RedisConnectPool()
     }
 }
 
-Redis *RedisConnectPool::getConnect()
+Redis *RedisConnectPool::getConnection()
 {
     std::unique_lock<std::mutex> locker(mutex_);
     if (connectPool_.empty())
     {
         while (connectPool_.empty())
         {
-            // 如果为空，需要阻塞3s，等待新的可用连接
+            // 如果为空，需要阻塞一段时间，等待新的可用连接
             if (std::cv_status::timeout == cv_.wait_for(locker, std::chrono::milliseconds(3000)))
             {
                 if (connectPool_.empty())

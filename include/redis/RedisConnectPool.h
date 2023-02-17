@@ -14,7 +14,7 @@ public:
     ~RedisConnectPool();
 
     bool connect();
-    Redis* getConnect();
+    Redis* getConnection();
     void releaseConnect(Redis *conn);
 
 private:

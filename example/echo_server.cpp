@@ -9,13 +9,10 @@
 
 int main()
 {
-    RedisConnectPool* redisConns = RedisConnectPool::getConnectionPool("127.0.0.1", 6379, 20);
-    Timestamp *clock = new Timestamp();
     EventLoop *loop = new EventLoop();
-
     TcpServer *server = new TcpServer(loop, "0.0.0.0", 8888);
 
-    server->setMessageCallback([&redisConns, &clock](Connection *conn)
+    server->setMessageCallback([](Connection *conn)
                               {
     conn->read();
     if (conn->getState() == Connection::State::Closed) {
@@ -23,10 +20,6 @@ int main()
       return;
     }
 
-    Redis* red = redisConns->getConnect();
-    red->setWithTimeout(clock->now().toString(true), conn->readBuffer());
-    redisConns->releaseConnect(red);
-    
     std::cout<<conn->readBuffer()<<std::endl;
     conn->setSendBuffer(conn->readBuffer());
     conn->write(); });

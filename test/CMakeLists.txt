@@ -2,9 +2,6 @@
 add_executable(timerqueue_test timerqueue_test.cpp)
 target_link_libraries(timerqueue_test myNetworkLibrary)
 
-add_executable(http_test http_test.cpp)
-target_link_libraries(http_test myNetworkLibrary)
-
 add_executable(threadpool_test threadpool_test.cpp)
 target_link_libraries(threadpool_test myNetworkLibrary)
 

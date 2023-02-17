@@ -2,6 +2,7 @@
 #include "noncopyable.h"
 #include <functional>
 #include <cstdint>
+#include <sys/epoll.h>
 
 class EventLoop;
 /**
@@ -14,28 +15,30 @@ public:
     Channel(EventLoop *loop, int fd);
     ~Channel();
 
-    //处理时间
     void handleEvent();
-    //启动
-    void enableRead();
 
+    void enableReading();
     int getFd();
-    uint32_t getListenEvents();
-    uint32_t getReadyEvents();
-    bool getInEpoll();
+    uint32_t getListenEvents() const;
+    uint32_t getReadyEvents() const;
+    bool getInEpoll() const;
     void setInEpoll(bool in = true);
     void useET();
-
     void setReadyEvents(const uint32_t &ev);
+
     void setReadCallback(std::function<void()> const &callback);
     void setWriteCallback(std::function<void()> const &callback);
 
 private:
     EventLoop *loop_;
-    int fd_;
+    const int fd_;
     uint32_t listenEvents_;
     uint32_t readyEvents_;
     bool inEpoll_;
     std::function<void()> readCallback_;
     std::function<void()> writeCallback_;
+
+    static const int kNoneEvent = 0;
+    static const int kReadEvent = EPOLLIN | EPOLLPRI;
+    static const int kWriteEvent = EPOLLOUT;
 };

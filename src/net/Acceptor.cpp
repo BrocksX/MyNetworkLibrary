@@ -12,7 +12,7 @@ Acceptor::Acceptor(EventLoop *loop, const char* ip, const uint16_t &port) : sock
     channel_ = std::make_unique<Channel>(loop, socket_->getFd());
     std::function<void()> cb = std::bind(&Acceptor::acceptConnection, this);
     channel_->setReadCallback(cb);
-    channel_->enableRead();
+    channel_->enableReading();
     delete addr;
 }
 

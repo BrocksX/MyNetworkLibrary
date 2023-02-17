@@ -19,6 +19,8 @@ public:
     std::vector<Channel*> poll(int timeout = -1);
 
 private:
-    int epfd_;
+    const int epfd_;
     epoll_event *events_;
+
+    static const int kMaxevents = 1000;
 };

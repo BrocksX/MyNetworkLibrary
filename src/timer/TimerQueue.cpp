@@ -5,15 +5,14 @@
 #include <sys/timerfd.h>
 #include <unistd.h>
 #include <string.h>
-#include <util.h>
 
 TimerQueue::TimerQueue(EventLoop* loop) : loop_(loop)
 {
     timerfd_ = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
-    errif(timerfd_ <= 0, "Failed in timerfd_create");
+    if(timerfd_ <= 0)   throw std::runtime_error("Failed in timerfd_create");
     timerfdChannel_ = std::make_unique<Channel>(loop_, timerfd_);
     timerfdChannel_->setReadCallback(std::bind(&TimerQueue::handleRead, this));
-    timerfdChannel_->enableRead();
+    timerfdChannel_->enableReading();
 }
 
 TimerQueue::~TimerQueue()
@@ -35,7 +34,7 @@ std::shared_ptr<Timer> TimerQueue::addTimer(std::function<void()> cb, const Time
 
 void TimerQueue::cancel(std::shared_ptr<Timer>timer)
 {
-    timer->disable();
+    timer->disabled_ = true;
 }
 
 void TimerQueue::resetTimerfd(int timerfd_, Timestamp expiration)
@@ -52,7 +51,6 @@ void TimerQueue::resetTimerfd(int timerfd_, Timestamp expiration)
     ts.tv_sec = static_cast<time_t>(microSecondDif / Timestamp::kMicroSecondsPerSecond);
     ts.tv_nsec = static_cast<long>((microSecondDif % Timestamp::kMicroSecondsPerSecond) * 1000);
     newValue.it_value = ts;
-    // 唤醒事件循环
     ::timerfd_settime(timerfd_, 0, &newValue, 0);
 }
 
@@ -70,7 +68,6 @@ std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
         expired.emplace_back(timers_.top());
         timers_.pop();
     }
-    
     return expired;
 }
 
@@ -82,7 +79,7 @@ void TimerQueue::handleRead()
 
     for (const Entry& it : expired)
     {
-        if(!it.second->isValid())
+        if(!it.second->disabled_)
             it.second->run();
     }
     reset(expired, now);
@@ -93,7 +90,7 @@ void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
     for (const Entry& it : expired)
     {
         // 重复任务且任务未取消则继续执行
-        if (it.second->isRepeat() && !it.second->isValid())
+        if (it.second->isRepeat() && !it.second->disabled_)
         {
             auto timer = it.second;
             timer->restart(Timestamp::now());

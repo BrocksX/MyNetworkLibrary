@@ -8,7 +8,6 @@ class Buffer;
 class HttpResponse
 {
 public:
-    // 响应状态码
     enum HttpStatusCode
     {
         kUnknown,
@@ -50,7 +49,6 @@ public:
 private:
     std::unordered_map<std::string, std::string> headers_;
     HttpStatusCode statusCode_;
-    // FIXME: add http version
     std::string statusMessage_;
     bool closeConnection_;
     std::string body_;

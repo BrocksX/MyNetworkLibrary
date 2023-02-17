@@ -23,8 +23,11 @@ public:
     
 private:
     using Entry = std::pair<Timestamp, std::shared_ptr<Timer>>;
+    EventLoop* loop_; 
+    int timerfd_;
+    std::unique_ptr<Channel> timerfdChannel_;
+    std::priority_queue<Entry, std::vector<Entry>, std::greater<Entry>> timers_;
 
-    // 定时器读事件触发的函数
     void handleRead();
 
     // 重新设置timerfd_
@@ -34,11 +37,5 @@ private:
     std::vector<Entry> getExpired(Timestamp now);
     void reset(const std::vector<Entry>& expired, Timestamp now);
 
-    // 插入定时器的内部方法
     bool insert(std::shared_ptr<Timer> timer);
-
-    EventLoop* loop_; 
-    int timerfd_;
-    std::unique_ptr<Channel> timerfdChannel_;
-    std::priority_queue<Entry, std::vector<Entry>, std::greater<Entry>> timers_;
 };

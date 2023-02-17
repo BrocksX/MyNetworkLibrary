@@ -7,14 +7,13 @@
 #include "Buffer.h"
 #include "Channel.h"
 #include "Socket.h"
-#include "util.h"
 
 Connection::Connection(EventLoop *loop, Socket *socket) : socket_(socket)
 {
     if (loop != nullptr)
     {
         channel_ = std::make_unique<Channel>(loop, socket->getFd());
-        channel_->enableRead();
+        channel_->enableReading();
         channel_->useET();
     }
     readBuffer_ = std::make_unique<Buffer>();

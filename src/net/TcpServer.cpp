@@ -6,7 +6,6 @@
 #include "EventLoop.h"
 #include "Socket.h"
 #include "ThreadPool.h"
-#include "util.h"
 
 TcpServer::TcpServer(EventLoop *loop, const char* ip, const uint16_t &port)
 {
@@ -28,7 +27,8 @@ TcpServer::~TcpServer() {}
 
 void TcpServer::newConnection(Socket *sock)
 {
-    errif(sock->getFd() == -1, "new connection error");
+    if(sock->getFd() == -1)
+        throw std::runtime_error("new connection error");
     uint64_t random = sock->getFd() % sub_reactors_.size();
     std::unique_ptr<Connection> conn = std::make_unique<Connection>(sub_reactors_[random].get(), sock);
     std::function<void(Socket *)> cb = std::bind(&TcpServer::deleteConnection, this, std::placeholders::_1);

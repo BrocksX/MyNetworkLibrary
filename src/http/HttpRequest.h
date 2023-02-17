@@ -113,7 +113,7 @@ public:
             ++colon;
         }
         std::string value(colon, end);
-        // value丢掉后面的空格，通过重新截断大小设置
+        // 丢掉后面的空格
         while (!value.empty() && isspace(value[value.size()-1]))
         {
           value.resize(value.size()-1);

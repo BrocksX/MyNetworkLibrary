@@ -1,18 +1,41 @@
 #include "RedisConnectPool.h"
 #include "stdio.h"
+#include <chrono>
+#include <thread>
+#include <iostream>
 
+using namespace std::chrono;
 void redis_test();
 void pool_test();
 
 int main()
 {
-    redis_test();
+    pool_test();
     return 0;
+}
+
+void threadpool(RedisConnectPool* pool, int begin, int end)
+{
+    for (int i = begin; i < end; ++i)
+    {
+        Redis* conn = pool->getConnection();
+        conn->set(std::to_string(i), "test");
+        pool->releaseConnect(conn);
+    }
 }
 
 void pool_test()
 {
     RedisConnectPool* pool = RedisConnectPool::getConnectionPool("127.0.0.1", 6379, 20);
+    steady_clock::time_point begin = steady_clock::now();
+    std::thread t1(threadpool, pool, 0, 50000);
+    std::thread t2(threadpool, pool, 50000, 100000);
+    t1.join();
+    t2.join();
+    steady_clock::time_point end = steady_clock::now();
+    auto length = end - begin;
+    std::cout << "连接池用时: " << length.count() / 1000000 << " 毫秒" << std::endl;
+
 }
 
 void redis_test()

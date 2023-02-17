@@ -9,7 +9,6 @@ class Buffer;
 class HttpContext
 {
 public:
-    // HTTP请求状态
     enum HttpRequestParseState
     {
         kExpectRequestLine, // 解析请求行状态
@@ -27,14 +26,9 @@ public:
 
     bool gotAll() const { return state_ == kGotAll; }
 
-    // 重置HttpContext状态，异常安全
     void reset()
     {
         state_ = kExpectRequestLine;
-        /**
-         * 构造一个临时空HttpRequest对象，和当前的成员HttpRequest对象交换置空
-         * 然后临时对象析构
-         */
         HttpRequest dummy;
         request_.swap(dummy);
     }

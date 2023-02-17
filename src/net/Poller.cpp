@@ -1,32 +1,27 @@
 #include "Poller.h"
-#include "util.h"
 #include "Channel.h"
 #include <unistd.h>
 #include <string.h>
+#include <stdexcept>
 
-#define MAX_EVENTS 1000
-
-Poller::Poller() : epfd_(-1), events_(nullptr)
+Poller::Poller() : epfd_(epoll_create1(EPOLL_CLOEXEC))
 {
-    epfd_ = epoll_create1(EPOLL_CLOEXEC);
-    errif(epfd_ == -1, "epoll create error");
-    events_ = new epoll_event[MAX_EVENTS];
-    bzero(events_, sizeof(*events_) * MAX_EVENTS);
+    if (epfd_ == -1)    throw std::runtime_error("epoll create error");
+    events_ = new epoll_event[kMaxevents];
+    bzero(events_, sizeof(*events_) * kMaxevents);
 }
+
 Poller::~Poller()
 {
-    if (epfd_ != -1)
-    {
-        close(epfd_);
-        epfd_ = -1;
-    }
+    close(epfd_);
     delete[] events_;
 }
+
 std::vector<Channel *> Poller::poll(int timeout)
 {
     std::vector<Channel *> activeChannels;
-    int nfds = epoll_wait(epfd_, events_, MAX_EVENTS, timeout);
-    errif(nfds == -1, "epoll wait error");
+    int nfds = epoll_wait(epfd_, events_, kMaxevents, timeout);
+    if (nfds == -1)     throw std::runtime_error("epoll wait error");
     for (int i = 0; i < nfds; ++i)
     {
         Channel *ch = (Channel *)events_[i].data.ptr;
@@ -45,18 +40,22 @@ void Poller::updateChannel(Channel *channel)
     ev.events = channel->getListenEvents();
     if (!channel->getInEpoll())
     {
-        errif(epoll_ctl(epfd_, EPOLL_CTL_ADD, fd, &ev) == -1, "epoll add error");
+        if (epoll_ctl(epfd_, EPOLL_CTL_ADD, fd, &ev) == -1)
+            throw std::runtime_error("epoll add error");
         channel->setInEpoll();
     }
     else
     {
-        errif(epoll_ctl(epfd_, EPOLL_CTL_MOD, fd, &ev) == -1, "epoll modify error");
+        if (epoll_ctl(epfd_, EPOLL_CTL_MOD, fd, &ev) == -1)
+            throw std::runtime_error("epoll modify error");
     }
 }
-void Poller::deleteChannel(Channel* channel)
+
+void Poller::deleteChannel(Channel *channel)
 {
     int fd = channel->getFd();
-    errif(epoll_ctl(epfd_, EPOLL_CTL_DEL, fd, NULL)==-1, "epoll delete error");
+    if (epoll_ctl(epfd_, EPOLL_CTL_DEL, fd, NULL) == -1)
+        throw std::runtime_error("epoll delete error");
     channel->setInEpoll(false);
     close(fd);
 }

@@ -5,7 +5,6 @@
 #include <condition_variable>
 #include "Redis.h"
 #include "noncopyable.h"
-#include "util.h"
 
 class RedisConnectPool
 {
@@ -13,7 +12,7 @@ public:
     DISALLOW_COPY_AND_ASSIGN(RedisConnectPool);
     static RedisConnectPool* getConnectionPool(const std::string ip, uint16_t port, int size, const std::string passwd = "");
     ~RedisConnectPool();
-    Redis* getConnect();
+    Redis* getConnection();
     void releaseConnect(Redis *conn);
 
 private:

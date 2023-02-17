@@ -15,22 +15,13 @@ private:
     double interval_;
     bool repeat_;
     bool disabled_;
-
-    void disable()
-    {
-        disabled_ = true;
-    }
-    bool isValid()
-    {
-        return disabled_;
-    }
     void restart(Timestamp now);
+    void run() const;
 
 public:
     Timer(std::function<void()> cb, Timestamp time, double interval);
     ~Timer() = default;
 
-    void run() const;
     Timestamp getExpiration() const;
     bool isRepeat() const;
 };
