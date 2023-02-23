@@ -20,8 +20,7 @@ int main()
     }
 
     printf("%s\n", conn->readBuffer());
-    conn->setSendBuffer(conn->readBuffer());
-    conn->write(); 
+    conn->send(conn->readBuffer()); 
     });
 
     server->start();

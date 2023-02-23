@@ -31,7 +31,7 @@ public:
 
 private:
     std::unique_ptr<EventLoop> mainReactor_;
-    std::vector<std::unique_ptr<EventLoop>> sub_reactors_;
+    std::vector<EventLoop* > subReactors_;
 
     std::unique_ptr<Acceptor> acceptor_;
     std::unordered_map<int, std::unique_ptr<Connection>> connections_;
@@ -39,4 +39,6 @@ private:
     std::unique_ptr<ThreadPool>threadPool_;
     std::function<void(Connection *)> connectionCallback_;
     std::function<void(Connection *)> messageCallback_;
+
+    void createEventLoopThread();
 };

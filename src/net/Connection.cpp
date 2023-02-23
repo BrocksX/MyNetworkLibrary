@@ -8,7 +8,7 @@
 #include "Channel.h"
 #include "Socket.h"
 
-Connection::Connection(EventLoop *loop, Socket *socket) : socket_(socket)
+Connection::Connection(EventLoop *loop, Socket *socket) : socket_(socket), loop_(loop)
 {
     if (loop != nullptr)
     {
@@ -183,12 +183,21 @@ Socket *Connection::getSocket() { return socket_.get(); }
 
 void Connection::send(const std::string &msg)
 {
-    setSendBuffer(msg.c_str());
-    write();
+    loop_->runInLoop(std::bind(&Connection::sendInLoop, this, msg.c_str()));
 }
 
 void Connection::send(const Buffer &buffer)
 {
-    setSendBuffer(buffer.c_str());
+    loop_->runInLoop(std::bind(&Connection::sendInLoop, this, buffer.c_str()));
+}
+
+void Connection::send(const char *msg)
+{
+    loop_->runInLoop(std::bind(&Connection::sendInLoop, this, msg));
+}
+
+void Connection::sendInLoop(const char *str)
+{
+    setSendBuffer(str);
     write();
 }

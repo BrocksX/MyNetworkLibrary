@@ -23,18 +23,19 @@ TimerQueue::~TimerQueue()
 std::shared_ptr<Timer> TimerQueue::addTimer(std::function<void()> cb, const Timestamp &when, const double &interval)
 {
     std::shared_ptr<Timer> timer = std::make_shared<Timer>(std::move(cb), when, interval);
-    bool eraliestChanged = insert(timer);
-
-    if (eraliestChanged)
-    {
-        resetTimerfd(timerfd_, timer->getExpiration());
-    }
+    loop_->runInLoop([this, &timer](){
+        bool eraliestChanged = this->insert(timer);
+        if (eraliestChanged)
+        {
+            resetTimerfd(timerfd_, timer->getExpiration());
+        }
+    });
     return timer;
 }
 
 void TimerQueue::cancel(std::shared_ptr<Timer>timer)
 {
-    timer->disabled_ = true;
+    loop_->runInLoop([this, &timer](){timer->disabled_ = true;});
 }
 
 void TimerQueue::resetTimerfd(int timerfd_, Timestamp expiration)

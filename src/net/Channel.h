@@ -18,13 +18,15 @@ public:
     void handleEvent();
 
     void enableReading();
-    int getFd();
+    int getFd() const;
     uint32_t getListenEvents() const;
     uint32_t getReadyEvents() const;
     bool getInEpoll() const;
     void setInEpoll(bool in = true);
     void useET();
     void setReadyEvents(const uint32_t &ev);
+    void disableAll();
+    void remove();
 
     void setReadCallback(std::function<void()> const &callback);
     void setWriteCallback(std::function<void()> const &callback);

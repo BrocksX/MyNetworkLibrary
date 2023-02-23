@@ -7,3 +7,6 @@ target_link_libraries(threadpool_test myNetworkLibrary)
 
 add_executable(redis_test redis_test.cpp)
 target_link_libraries(redis_test myNetworkLibrary)
+
+add_executable(EventLoop_test EventLoop_test.cpp)
+target_link_libraries(EventLoop_test myNetworkLibrary)

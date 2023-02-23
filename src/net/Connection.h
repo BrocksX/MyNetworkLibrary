@@ -3,6 +3,7 @@
 #include <functional>
 #include <string>
 #include <memory>
+#include "EventLoop.h"
 
 class EventLoop;
 class Socket;
@@ -27,11 +28,12 @@ public:
     };
     Connection(EventLoop *loop, Socket *socket);
     ~Connection();
+
     //读写操作
     void read();
-    void write();
     void send(const std::string &msg);
     void send(const Buffer &buffer);
+    void send(const char *msg);
 
     void setDeleteConnectionCallback(std::function<void(Socket *)> const &callback);
     void setMessageCallback(std::function<void(Connection *)> const &callback);
@@ -48,6 +50,7 @@ public:
 
 
 private:
+    EventLoop *loop_;
     std::unique_ptr<Socket> socket_;
     std::unique_ptr<Channel> channel_;
     State state_;
@@ -56,8 +59,11 @@ private:
     std::function<void(Socket *)> deleteConnectioinCallback_;
     std::function<void(Connection *)> messageCallback_;
 
+    void write();
     void readNonBlocking();
     void writeNonBlocking();
     void readBlocking();
     void writeBlocking();
+
+    void sendInLoop(const char *str);
 };

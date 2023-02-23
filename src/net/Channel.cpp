@@ -35,7 +35,19 @@ void Channel::useET()
     listenEvents_ |= EPOLLET;
     loop_->updateChannel(this);
 }
-int Channel::getFd() { return fd_; }
+
+void Channel::disableAll() 
+{ 
+    listenEvents_ &= kNoneEvent; 
+    loop_->updateChannel(this);
+}
+
+void Channel::remove()
+{
+    loop_->deleteChannel(this);
+}
+
+int Channel::getFd() const { return fd_; }
 
 uint32_t Channel::getListenEvents() const { return listenEvents_; }
 
