@@ -10,11 +10,15 @@
 Socket::Socket()
 {
     fd_ = socket(AF_INET, SOCK_STREAM, 0);
-    if(fd_ == -1)   throw std::runtime_error("socket create error");
+    if (fd_ == -1)
+        throw std::runtime_error("socket create error");
+    int opt = 1;
+    setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int));
 }
-Socket::Socket(int fd) : fd_(fd) 
-{ 
-    if(fd_ == -1)   throw std::runtime_error("socket create error");
+Socket::Socket(int fd) : fd_(fd)
+{
+    if (fd_ == -1)
+        throw std::runtime_error("socket create error");
 }
 
 Socket::~Socket()
@@ -28,13 +32,13 @@ Socket::~Socket()
 void Socket::bind(InetAddress *addr)
 {
     struct sockaddr_in tmp_addr = addr->getAddr();
-    if(::bind(fd_, (sockaddr *)&tmp_addr, sizeof(tmp_addr)) == -1)
+    if (::bind(fd_, (sockaddr *)&tmp_addr, sizeof(tmp_addr)) == -1)
         throw std::runtime_error("socket bind error");
 }
 
-void Socket::listen() 
-{ 
-    if(::listen(fd_, SOMAXCONN) == -1)
+void Socket::listen()
+{
+    if (::listen(fd_, SOMAXCONN) == -1)
         throw std::runtime_error("socket listen error");
 }
 
@@ -69,7 +73,7 @@ int Socket::accept(InetAddress *addr)
     else
     {
         clnt_sockfd = ::accept(fd_, (sockaddr *)&tmp_addr, &addr_len);
-        if(clnt_sockfd == -1)
+        if (clnt_sockfd == -1)
             throw std::runtime_error("socket accept error");
     }
     addr->setAddr(tmp_addr);
@@ -100,7 +104,7 @@ void Socket::connect(InetAddress *addr)
     }
     else
     {
-        if(::connect(fd_, (sockaddr *)&tmp_addr, sizeof(tmp_addr)) == -1)
+        if (::connect(fd_, (sockaddr *)&tmp_addr, sizeof(tmp_addr)) == -1)
             throw std::runtime_error("socket connect error");
     }
 }
@@ -110,6 +114,16 @@ void Socket::connect(const char *ip, const uint16_t &port)
     InetAddress *addr = new InetAddress(ip, port);
     connect(addr);
     delete addr;
+}
+
+void Socket::shutdownWrite()
+{
+    ::shutdown(fd_, SHUT_WR);
+}
+
+void Socket::shutdownRead()
+{
+    ::shutdown(fd_, SHUT_RD);
 }
 
 int Socket::getFd() { return fd_; }

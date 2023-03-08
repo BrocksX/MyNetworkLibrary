@@ -29,7 +29,6 @@ void onRequest(const HttpRequest& req, HttpResponse* resp)
         resp->setStatusMessage("Not Found");
         resp->setCloseConnection(true);
     }
-
 }
 
 int main()

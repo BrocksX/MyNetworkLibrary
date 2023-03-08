@@ -11,16 +11,15 @@ int main()
     EventLoop *loop = new EventLoop();
     TcpServer *server = new TcpServer(loop, "0.0.0.0", 8888);
 
-    server->setMessageCallback([](Connection *conn)
+    server->setMessageCallback([](std::shared_ptr<Connection> conn)
                               {
-    conn->read();
-    if (conn->getState() == Connection::State::Closed) {
-      conn->close();
-      return;
-    }
+        conn->read();
+        if (conn->getState() == Connection::State::Closed) {
+            conn->close();
+            return;
+        }
 
-    printf("%s\n", conn->readBuffer());
-    conn->send(conn->readBuffer()); 
+        conn->send(conn->readBuffer());
     });
 
     server->start();

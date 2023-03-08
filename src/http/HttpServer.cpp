@@ -26,29 +26,29 @@ void HttpServer::start()
     server_.start();
 }
 
-void HttpServer::onConnection(Connection* conn)
+void HttpServer::onConnection(std::shared_ptr<Connection> conn)
 {
     
 }
 
-void HttpServer::onMessage(Connection* conn)
+void HttpServer::onMessage(std::shared_ptr<Connection> conn)
 {
-    std::unique_ptr<HttpContext> context(new HttpContext);
+    HttpContext context;
     conn->read();
     // 进行状态机解析
-    if (!context->parseRequest(conn->getReadBuffer(), Timestamp::now()))
+    if (!context.parseRequest(conn->getReadBuffer(), Timestamp::now()))
     {
         conn->send("HTTP/1.1 400 Bad Request\r\n\r\n");
         conn->close();
     }
-    if (context->gotAll())
+    if (context.gotAll())
     {
-        onRequest(conn, context->request());
-        context->reset();
+        onRequest(conn, context.request());
+        context.reset();
     }
 }
 
-void HttpServer::onRequest(Connection* conn, const HttpRequest& req)
+void HttpServer::onRequest(std::shared_ptr<Connection> conn, const HttpRequest& req)
 {
     const std::string& connection = req.getHeader("Connection");
 

@@ -24,9 +24,9 @@ public:
     DISALLOW_COPY_AND_MOVE(TcpServer);
 
     void newConnection(Socket *sock);
-    void deleteConnection(Socket *sock);
-    void setMessageCallback(std::function<void(Connection *)> fn);
-    void setConnectionCallback(std::function<void(Connection *)> fn);
+    void deleteConnection(std::shared_ptr<Connection>conn);
+    void setMessageCallback(std::function<void(std::shared_ptr<Connection>)> fn);
+    void setConnectionCallback(std::function<void(std::shared_ptr<Connection>)> fn);
     void start();
 
 private:
@@ -34,11 +34,12 @@ private:
     std::vector<EventLoop* > subReactors_;
 
     std::unique_ptr<Acceptor> acceptor_;
-    std::unordered_map<int, std::unique_ptr<Connection>> connections_;
+    std::unordered_map<int, std::shared_ptr<Connection>> connections_;
 
     std::unique_ptr<ThreadPool>threadPool_;
-    std::function<void(Connection *)> connectionCallback_;
-    std::function<void(Connection *)> messageCallback_;
+    std::function<void(std::shared_ptr<Connection>)> connectionCallback_;
+    std::function<void(std::shared_ptr<Connection>)> messageCallback_;
 
     void createEventLoopThread();
+    void deleteConnectionInLoop(std::shared_ptr<Connection>conn);
 };

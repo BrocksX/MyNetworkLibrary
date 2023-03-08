@@ -26,27 +26,24 @@ void TcpServer::newConnection(Socket *sock)
     if(sock->getFd() == -1)
         throw std::runtime_error("new connection error");
     uint64_t random = sock->getFd() % subReactors_.size();
-    std::unique_ptr<Connection> conn = std::make_unique<Connection>(subReactors_[random], sock);
-    std::function<void(Socket *)> cb = std::bind(&TcpServer::deleteConnection, this, std::placeholders::_1);
-    conn->setDeleteConnectionCallback(cb);
+    std::shared_ptr<Connection> conn = std::make_shared<Connection>(subReactors_[random], sock);
+    conn->setDeleteConnectionCallback(std::bind(&TcpServer::deleteConnection, this, std::placeholders::_1));
     conn->setMessageCallback(messageCallback_);
-    connections_[sock->getFd()] = std::move(conn);
-
+    connections_[sock->getFd()] = conn;
     if(connectionCallback_)
-        connectionCallback_(connections_[sock->getFd()].get());
+        connectionCallback_(connections_[sock->getFd()]);
+
+    subReactors_[random]->queueInLoop(std::bind(&Connection::connectEstablished, conn));   
 }
 
-void TcpServer::deleteConnection(Socket *sock)
+void TcpServer::deleteConnection(std::shared_ptr<Connection> conn)
 {
-    int sockfd = sock->getFd();
-    auto it = connections_.find(sockfd);
-    assert(it != connections_.end());
-    connections_.erase(sockfd);
+    mainReactor_->runInLoop(std::bind(&TcpServer::deleteConnectionInLoop, this, conn));
 }
 
-void TcpServer::setMessageCallback(std::function<void(Connection *)> fn) { messageCallback_ = std::move(fn); }
+void TcpServer::setMessageCallback(std::function<void(std::shared_ptr<Connection>)> fn) { messageCallback_ = std::move(fn); }
 
-void TcpServer::setConnectionCallback(std::function<void(Connection *)> fn) { connectionCallback_ = std::move(fn); }
+void TcpServer::setConnectionCallback(std::function<void(std::shared_ptr<Connection>)> fn) { connectionCallback_ = std::move(fn); }
 
 void TcpServer::start()
 {
@@ -62,4 +59,10 @@ void TcpServer::createEventLoopThread()
     EventLoop* reactor = new EventLoop();
     subReactors_.push_back(reactor);
     reactor->loop();
+}
+
+void TcpServer::deleteConnectionInLoop(std::shared_ptr<Connection> conn)
+{
+    int sockfd = conn->getFd();
+    connections_.erase(conn->getFd());
 }

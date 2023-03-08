@@ -8,7 +8,7 @@ __thread EventLoop *t_loopInThisThread = nullptr;
 
 
 EventLoop::EventLoop() : quit_(false), poller_(std::make_unique<Poller>()), timerQueue_(std::make_unique<TimerQueue>(this)), 
-threadId_(CurrentThread::tid()), callingPendingFunctors_(false), wakeupFd_(::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC))
+    threadId_(CurrentThread::tid()), callingPendingFunctors_(false), wakeupFd_(::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC))
 {
     if (wakeupFd_ < 0)
         throw std::runtime_error("create wakeup fd error");
@@ -45,9 +45,7 @@ void EventLoop::loop()
 void EventLoop::runInLoop(Functor function)
 {
     if(isInLoopThread())
-    {
         function();
-    }
     else
         queueInLoop(function);
 }
@@ -64,14 +62,16 @@ void EventLoop::queueInLoop(Functor function)
 
 void EventLoop::wakeup()
 {
-    uint16_t one = 1;
-    ssize_t n = write(wakeupFd_, &one, sizeof(one));
+    uint64_t one = 1;
+    ssize_t n = ::write(wakeupFd_, &one, sizeof(one));
+    // printf("wakeup tid: %d\n", gettid());
 }
 
 void EventLoop::handleRead()
 {
-    uint16_t one = 1;
-    ssize_t n = read(wakeupFd_, &one, sizeof(one));
+    uint64_t one = 1;
+    ssize_t n = ::read(wakeupFd_, &one, sizeof(one));
+    // printf("handleRead tid: %d\n", gettid());
 }
 
 void EventLoop::doPendingFunctors()

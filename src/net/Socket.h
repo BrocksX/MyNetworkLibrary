@@ -23,6 +23,9 @@ public:
     void connect(InetAddress *addr);
     void connect(const char *ip, const uint16_t &port);
 
+    void shutdownWrite();
+    void shutdownRead();
+
     void setNonBlocking();
     bool isNonBlocking();
     int getFd();

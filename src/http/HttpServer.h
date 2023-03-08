@@ -27,9 +27,9 @@ public:
     void start();
 
 private:
-    void onConnection(Connection* conn);
-    void onMessage(Connection* conn);
-    void onRequest(Connection* , const HttpRequest&);
+    void onConnection(std::shared_ptr<Connection> conn);
+    void onMessage(std::shared_ptr<Connection> conn);
+    void onRequest(std::shared_ptr<Connection> conn, const HttpRequest&);
 
     TcpServer server_;
     HttpCallback httpCallback_;
