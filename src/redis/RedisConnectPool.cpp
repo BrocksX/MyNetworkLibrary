@@ -20,6 +20,27 @@ RedisConnectPool::RedisConnectPool(const std::string ip, uint16_t port, int size
         else
             throw std::runtime_error("Redis Connetion create error");
     }
+    std::thread checker(&RedisConnectPool::checkConnection, this);
+    checker.detach();
+}
+
+void RedisConnectPool::checkConnection()
+{
+    while (true)
+    {
+        std::this_thread::sleep_for(std::chrono::microseconds(60000));
+        Redis* conn = getConnection();
+        if(!conn->checkAlive())
+        {
+            conn->disconnect();
+            delete conn;
+            Redis *conn = new Redis();
+            if(conn->connect(ip_, port_, password_))
+            {
+                connectPool_.push(conn);
+            }
+        }
+    }
 }
 
 RedisConnectPool::~RedisConnectPool()

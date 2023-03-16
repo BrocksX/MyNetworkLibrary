@@ -2,6 +2,7 @@
 #include <vector>
 #include <queue>
 #include <mutex>
+#include <thread>
 #include <condition_variable>
 #include "Redis.h"
 #include "noncopyable.h"
@@ -17,6 +18,7 @@ public:
 
 private:
     RedisConnectPool(const std::string ip, uint16_t port, int size, const std::string passwd = "");
+    void checkConnection();
     int size_;
     std::string ip_;
     std::string password_;

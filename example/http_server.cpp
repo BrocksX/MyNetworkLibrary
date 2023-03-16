@@ -15,6 +15,7 @@ void onRequest(const HttpRequest& req, HttpResponse* resp)
         resp->setBody("<html><head><title>Title</title></head>"
             "<body><h1>Hello world</h1>Now is " + now +
             "</body></html>");
+        resp->setCloseConnection(true);
     }
     else if (req.path() == "/hello")
     {
@@ -22,6 +23,7 @@ void onRequest(const HttpRequest& req, HttpResponse* resp)
         resp->setStatusMessage("OK");
         resp->setContentType("text/plain");
         resp->setBody("hello, world!\n");
+        resp->setCloseConnection(true);
     }
     else
     {

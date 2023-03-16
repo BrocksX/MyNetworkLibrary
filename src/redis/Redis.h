@@ -18,6 +18,8 @@ public:
     bool connect(const std::string &ip, const uint16_t &port, const std::string &password = "");
     void disconnect();
 
+    bool checkAlive();
+
     bool set(const std::string &key, const std::string &value);
     bool setWithTimeout(const std::string &key, const std::string &value, const int64_t &sceonds = 100);
     std::string get(std::string key);

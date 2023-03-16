@@ -20,7 +20,7 @@ void Acceptor::acceptConnection() const
 {
     InetAddress clnt_addr;
     Socket *clnt_sock = new Socket(socket_->accept(&clnt_addr));
-    printf("new connection - FD: %d, IP: %s Port: %d\n", clnt_sock->getFd(), inet_ntoa(clnt_addr.getAddr().sin_addr), ntohs(clnt_addr.getAddr().sin_port));
+    printf("new connection, IP: %s Port: %d\n", inet_ntoa(clnt_addr.getAddr().sin_addr), ntohs(clnt_addr.getAddr().sin_port));
     clnt_sock->setNonBlocking();
     newConnectionCallback_(clnt_sock);
 }

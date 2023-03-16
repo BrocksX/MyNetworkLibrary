@@ -30,7 +30,6 @@ void Connection::connectEstablished()
 
 void Connection::connectDestroyed()
 {
-    shutdown();
     if (state_ == Connected)
     {
         state_ = Closed;

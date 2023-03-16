@@ -37,6 +37,15 @@ void Redis::disconnect()
     }
 }
 
+bool Redis::checkAlive()
+{
+    std::vector<std::string> cmd = {"PING"};
+    std::string ret;
+    execReplyStatus(cmd, ret);
+    if(ret == "PONG")   return true;
+    else    return false;
+}
+
 std::string Redis::get(std::string key)
 {
     redisReply *reply_ = (redisReply *)redisCommand(context_.get(), "GET %s", key.c_str());

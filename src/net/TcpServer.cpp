@@ -63,6 +63,7 @@ void TcpServer::createEventLoopThread()
 
 void TcpServer::deleteConnectionInLoop(std::shared_ptr<Connection> conn)
 {
+    conn->connectDestroyed();
     int sockfd = conn->getFd();
     connections_.erase(conn->getFd());
 }
