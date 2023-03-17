@@ -40,6 +40,10 @@ void RedisConnectPool::checkConnection()
                 connectPool_.push(conn);
             }
         }
+        else
+        {
+            releaseConnect(conn);
+        }
     }
 }
 
