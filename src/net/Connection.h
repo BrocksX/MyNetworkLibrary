@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include "EventLoop.h"
+#include "FileHandler.h"
 
 class EventLoop;
 class Socket;
@@ -36,6 +37,8 @@ public:
     void shutdown();
     void close();
 
+    void sendFile(FileHandler* file);
+
     void connectEstablished();
     void connectDestroyed();
 
@@ -62,10 +65,13 @@ private:
     std::unique_ptr<Channel> channel_;
     State state_;
     int fd_;
+    size_t fileWrote_;
+    FileHandler *file_;
     std::unique_ptr<Buffer> readBuffer_;
     std::unique_ptr<Buffer> sendBuffer_;
     std::function<void(std::shared_ptr<Connection>)> deleteConnectioinCallback_;
     std::function<void(std::shared_ptr<Connection>)> messageCallback_;
+    std::function<void(std::shared_ptr<Connection>)> writeCompleteCallback_;
 
     void write();
     void readNonBlocking();
@@ -74,4 +80,5 @@ private:
     void writeBlocking();
 
     void sendInLoop(const char *str);
+    void sendFileInLoop(FileHandler* file);
 };

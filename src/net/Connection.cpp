@@ -4,6 +4,7 @@
 #include <cstring>
 #include <iostream>
 #include <utility>
+#include <sys/sendfile.h>
 #include "Buffer.h"
 #include "Channel.h"
 #include "Socket.h"
@@ -18,7 +19,7 @@ Connection::Connection(EventLoop *loop, Socket *socket) : socket_(std::unique_pt
     fd_ = socket_->getFd();
 }
 
-Connection::~Connection() 
+Connection::~Connection()
 {
 }
 
@@ -193,7 +194,8 @@ void Connection::setDeleteConnectionCallback(std::function<void(std::shared_ptr<
 void Connection::setMessageCallback(std::function<void(std::shared_ptr<Connection>)> const &callback)
 {
     messageCallback_ = callback;
-    channel_->setReadCallback([this](){ messageCallback_(shared_from_this()); });
+    channel_->setReadCallback([this]()
+                              { messageCallback_(shared_from_this()); });
 }
 
 void Connection::getlineSendBuffer() { sendBuffer_->getline(); }
@@ -221,8 +223,66 @@ void Connection::sendInLoop(const char *str)
     write();
 }
 
+void Connection::sendFile(FileHandler* file)
+{
+    if (state_ != State::Connected)
+        return;
+    if (loop_->isInLoopThread())
+    {
+        sendFileInLoop(file);
+    }
+    else
+    {
+        loop_->runInLoop(std::bind(&Connection::sendFileInLoop, this, file));
+    }
+}
+
+void Connection::sendFileInLoop(FileHandler*file)
+{
+    fileWrote_ = 0;
+    if (file->getFd() >= 0)
+    {
+        size_t nwrote = 0;
+        bool faultError = false;
+        size_t remain = file->fileSize();
+        if (sendBuffer_->size() == 0)
+        {
+            nwrote = ::sendfile(socket_->getFd(), file->getFd(), nullptr, remain);
+            fileWrote_ += nwrote;
+            if (nwrote >= 0)
+            {
+                remain = remain - nwrote;
+                if (remain == 0)
+                    fileWrote_ = 0;
+                if (remain == 0 && writeCompleteCallback_)
+                {
+                    // 写完回调
+                    // 这里不直接调用是为了避免栈溢出，因为回调可能执行sendInLoop
+                    writeCompleteCallback_(shared_from_this());
+                }
+            }
+            else
+            {
+                nwrote = 0;
+                if (errno == EPIPE || errno == ECONNRESET)
+                {
+                    faultError = true;
+                }
+            }
+        }
+        if (remain > 0 && !faultError)
+        {
+            file_ = file;
+        }
+    }
+    else
+    {
+    }
+}
+
 void Connection::shutdown()
 {
     state_ = Closed;
-    loop_->runInLoop([this]() { socket_->shutdownWrite(); });
+    loop_->runInLoop([this]()
+                     { socket_->shutdownWrite(); });
 }
